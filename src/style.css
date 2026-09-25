@@ -1,0 +1,980 @@
+/* ==========================================================
+   MONSTER PHONICS (APLIKASI PUZZLE FONIK MONSTER)
+   Rich Kid-Friendly Design System & Keyframe Animations
+   ========================================================== */
+
+:root {
+  --font-primary: 'Fredoka', 'Nunito', system-ui, sans-serif;
+  --font-reading: 'Quicksand', 'Nunito', sans-serif;
+
+  /* Playful Pastel & Vibrant Palette */
+  --bg-sky: linear-gradient(180deg, #E0F7FA 0%, #FFF9DB 50%, #FFE8D6 100%);
+  --color-primary: #FF5964;
+  --color-primary-hover: #E63946;
+  --color-accent: #FFD166;
+  --color-teal: #06D6A0;
+  --color-blue: #118AB2;
+  --color-purple: #8338EC;
+  --color-pink: #FF85A1;
+
+  --card-bg: rgba(255, 255, 255, 0.85);
+  --card-border: 4px solid #2D3142;
+  --shadow-clay: 0 8px 0 #2D3142, 0 14px 20px rgba(0, 0, 0, 0.12);
+  --shadow-btn: 0 6px 0 #2D3142, 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-btn-active: 0 2px 0 #2D3142, 0 4px 6px rgba(0, 0, 0, 0.15);
+
+  --text-dark: #2D3142;
+  --text-muted: #5C6279;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body {
+  font-family: var(--font-primary);
+  background: var(--bg-sky);
+  color: var(--text-dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Background floating decorative clouds & bubbles */
+body::before, body::after {
+  content: '';
+  position: fixed;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::before {
+  top: -80px;
+  left: -80px;
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.25) 0%, transparent 70%);
+}
+
+body::after {
+  bottom: -100px;
+  right: -100px;
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, rgba(6, 214, 160, 0.2) 0%, transparent 70%);
+}
+
+/* ==========================================================
+   APP HEADER
+   ========================================================== */
+
+.app-header {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.75rem;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  border-bottom: 3.5px solid #2D3142;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-icon-anim {
+  font-size: 2.4rem;
+  filter: drop-shadow(0 4px 0 #2D3142);
+  animation: gentleBob 2.5s ease-in-out infinite;
+}
+
+.brand-title {
+  font-size: 1.6rem;
+  font-weight: 900;
+  letter-spacing: -0.5px;
+  color: var(--text-dark);
+  line-height: 1.1;
+}
+
+.brand-subtitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-purple);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-icon-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #FFFFFF;
+  border: 3px solid #2D3142;
+  border-radius: 999px;
+  padding: 0.5rem 1.1rem;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  box-shadow: var(--shadow-btn);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.btn-icon-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 0 #2D3142;
+}
+
+.btn-icon-pill:active {
+  transform: translateY(3px);
+  box-shadow: var(--shadow-btn-active);
+}
+
+.btn-icon-pill.btn-stickers {
+  background: #FFE066;
+}
+
+/* ==========================================================
+   MAIN ARENA
+   ========================================================== */
+
+.game-arena {
+  position: relative;
+  z-index: 5;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 2rem;
+  max-width: 980px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Word Card / Banner */
+.word-mission-card {
+  width: 100%;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border: var(--card-border);
+  border-radius: 28px;
+  box-shadow: var(--shadow-clay);
+  padding: 1.25rem 1.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1.25rem;
+  position: relative;
+}
+
+.mission-top-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.mission-category {
+  background: #E0F4FF;
+  border: 2.5px solid #2D3142;
+  border-radius: 999px;
+  padding: 0.35rem 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+}
+
+.word-navigator {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-arrow-btn {
+  background: #FFFFFF;
+  border: 2.5px solid #2D3142;
+  border-radius: 12px;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #2D3142;
+  transition: all 0.12s;
+}
+
+.nav-arrow-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 #2D3142;
+}
+
+.mission-hint-box {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.2rem;
+  background: #FFF9DB;
+  border: 2px dashed #FFD166;
+  border-radius: 16px;
+  padding: 0.5rem 1.2rem;
+}
+
+.hint-icon {
+  font-size: 1.3rem;
+}
+
+.hint-text {
+  font-family: var(--font-reading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* ==========================================================
+   TARGET WORD FRAME (SLOTS FOR LETTERS)
+   ========================================================== */
+
+.target-word-frame {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin: 0.5rem 0 1rem;
+  width: 100%;
+}
+
+.target-letter-slot {
+  width: 88px;
+  height: 96px;
+  background: #F4F6FB;
+  border: 3.5px dashed #B8C0D4;
+  border-radius: 22px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.slot-placeholder {
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #C5CBD9;
+  letter-spacing: 0;
+  transition: color 0.2s;
+}
+
+/* Hover near correct slot */
+.target-letter-slot.slot-hover-snap {
+  border-color: #06D6A0;
+  background: #E8FFF8;
+  transform: scale(1.08);
+  box-shadow: 0 0 20px rgba(6, 214, 160, 0.5);
+  animation: slotPulse 0.8s ease-in-out infinite alternate;
+}
+
+.target-letter-slot.slot-hover-snap .slot-placeholder {
+  color: #06D6A0;
+}
+
+/* Filled slot */
+.target-letter-slot.slot-filled {
+  border: 3.5px solid #2D3142;
+  background: transparent;
+  box-shadow: var(--shadow-btn);
+  animation: slotSnapPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.target-letter-slot.slot-filled .monster-svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Highlight letter during full-word sequence pronunciation */
+.target-letter-slot.letter-speaking-highlight {
+  transform: scale(1.15) translateY(-6px);
+  box-shadow: 0 12px 25px rgba(255, 89, 100, 0.5);
+  z-index: 15;
+}
+
+/* ==========================================================
+   MONSTER LETTER TRAY (BOTTOM AREA)
+   ========================================================== */
+
+.tray-wrapper {
+  width: 100%;
+  margin-top: 1rem;
+}
+
+.tray-title-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-muted);
+}
+
+.monster-tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1.1rem;
+  min-height: 120px;
+  background: rgba(255, 255, 255, 0.65);
+  backdrop-filter: blur(8px);
+  border: var(--card-border);
+  border-radius: 28px;
+  padding: 1.25rem;
+  box-shadow: var(--shadow-clay);
+}
+
+.monster-letter-card {
+  width: 88px;
+  height: 96px;
+  cursor: grab;
+  position: relative;
+  touch-action: none;
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: gentleBob 3s ease-in-out infinite;
+}
+
+.monster-letter-card:nth-child(2n) {
+  animation-delay: 0.4s;
+}
+
+.monster-letter-card:nth-child(3n) {
+  animation-delay: 0.8s;
+}
+
+.monster-letter-card:hover {
+  transform: translateY(-5px) scale(1.05);
+}
+
+.monster-letter-card:active {
+  cursor: grabbing;
+}
+
+.monster-letter-card.is-being-dragged {
+  opacity: 0.3;
+  transform: scale(0.9);
+}
+
+.monster-letter-card.is-placed {
+  display: none;
+}
+
+.monster-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+}
+
+/* Animated talking mouth when dragged */
+.monster-mouth-chanting {
+  animation: mouthChant 0.25s infinite alternate ease-in-out;
+  transform-origin: 60px 68px;
+}
+
+/* ==========================================================
+   SPARKLE & CONFETTI PARTICLES
+   ========================================================== */
+
+.sparkle-burst-container {
+  position: fixed;
+  pointer-events: none;
+}
+
+.sparkle-star {
+  position: absolute;
+  font-size: 1.5rem;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+}
+
+@keyframes sparklePop {
+  0% {
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.2);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) translate(var(--tx), var(--ty)) scale(1.3) rotate(180deg);
+    opacity: 0;
+  }
+}
+
+/* ==========================================================
+   VIGNETTE THEATER MODAL (ANIMATED CARTOON & MEANING)
+   ========================================================== */
+
+.theater-backdrop, .sticker-book-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(30, 36, 56, 0.65);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.theater-modal {
+  background: #FFFFFF;
+  border: 4.5px solid #2D3142;
+  border-radius: 36px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 580px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.theater-header {
+  padding: 1.1rem 1.5rem 0.6rem;
+  text-align: center;
+  background: #FFFDF7;
+}
+
+.theater-category-badge {
+  display: inline-block;
+  background: #FFE5EC;
+  border: 2px solid #2D3142;
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  font-size: 0.85rem;
+  font-weight: 800;
+  margin-bottom: 0.35rem;
+}
+
+.theater-super-title {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--color-primary);
+}
+
+/* Animated SVG Cartoon Stage */
+.theater-stage {
+  width: 100%;
+  height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 3.5px solid #2D3142;
+  border-bottom: 3.5px solid #2D3142;
+  position: relative;
+  overflow: hidden;
+}
+
+.vignette-svg {
+  width: 100%;
+  max-width: 380px;
+  height: 100%;
+}
+
+/* Word banner in theater */
+.theater-word-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.75rem 0.5rem;
+}
+
+.theater-word-text {
+  font-size: 2.6rem;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--color-purple);
+  text-shadow: 0 3px 0 #2D3142;
+}
+
+.sound-repeat-btn {
+  background: #E0F4FF;
+  border: 2.5px solid #2D3142;
+  border-radius: 999px;
+  padding: 0.55rem 1.1rem;
+  font-family: var(--font-primary);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-dark);
+  cursor: pointer;
+  box-shadow: 0 4px 0 #2D3142;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  transition: all 0.12s;
+}
+
+.sound-repeat-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #2D3142;
+}
+
+.sound-repeat-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2D3142;
+}
+
+/* Meaning card */
+.theater-meaning-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  background: #FFF9DB;
+  border: 2.5px solid #2D3142;
+  border-radius: 20px;
+  margin: 0.5rem 1.75rem 1.25rem;
+  padding: 1rem 1.25rem;
+}
+
+.meaning-icon {
+  font-size: 1.8rem;
+}
+
+.meaning-text {
+  font-family: var(--font-reading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  line-height: 1.45;
+  color: #333;
+}
+
+.story-tagline {
+  font-family: var(--font-primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-blue);
+  margin-top: 0.4rem;
+}
+
+.theater-actions {
+  padding: 0 1.75rem 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+.btn-primary-fun {
+  width: 100%;
+  background: #06D6A0;
+  border: 3.5px solid #2D3142;
+  border-radius: 20px;
+  padding: 1.1rem;
+  font-family: var(--font-primary);
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #2D3142;
+  box-shadow: var(--shadow-clay);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  transition: all 0.15s;
+}
+
+.btn-primary-fun:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 0 #2D3142;
+  background: #10e6ae;
+}
+
+.btn-primary-fun:active {
+  transform: translateY(4px);
+  box-shadow: var(--shadow-btn-active);
+}
+
+.btn-arrow {
+  font-size: 1.4rem;
+}
+
+/* ==========================================================
+   STICKER BOOK MODAL
+   ========================================================== */
+
+.sticker-book-modal {
+  background: #FFFFFF;
+  border: 4.5px solid #2D3142;
+  border-radius: 36px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  width: 100%;
+  max-width: 680px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sticker-book-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.75rem;
+  background: #FFFDF7;
+  border-bottom: 3.5px solid #2D3142;
+}
+
+.header-title-box {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sticker-emoji {
+  font-size: 2.2rem;
+}
+
+.sticker-subtitle {
+  font-family: var(--font-reading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.btn-close-modal {
+  background: #FF5964;
+  color: #FFF;
+  border: 3px solid #2D3142;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #2D3142;
+  transition: all 0.12s;
+}
+
+.btn-close-modal:active {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #2D3142;
+}
+
+.sticker-progress-ribbon {
+  padding: 0.9rem 1.75rem;
+  background: #FFE8D6;
+  border-bottom: 2.5px solid #2D3142;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.95rem;
+  font-weight: 800;
+  margin-bottom: 0.4rem;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 14px;
+  background: #FFF;
+  border: 2px solid #2D3142;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFD166, #06D6A0);
+  border-radius: 999px;
+  transition: width 0.4s ease;
+}
+
+.sticker-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1.25rem;
+  padding: 1.5rem 1.75rem;
+  overflow-y: auto;
+}
+
+.sticker-card {
+  background: #F8F9FA;
+  border: 3px solid #2D3142;
+  border-radius: 20px;
+  padding: 1rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.sticker-card.is-unlocked {
+  background: #FFFDF7;
+  cursor: pointer;
+  box-shadow: 0 5px 0 #2D3142;
+}
+
+.sticker-card.is-unlocked:hover {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 9px 0 #2D3142;
+}
+
+.sticker-badge {
+  width: 60px;
+  height: 60px;
+  background: #FFE5EC;
+  border: 2.5px solid #2D3142;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  margin-bottom: 0.5rem;
+}
+
+.sticker-icon {
+  font-size: 1.8rem;
+}
+
+.sticker-star {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 1.1rem;
+}
+
+.sticker-name {
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--text-dark);
+}
+
+.sticker-hint-mini {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--color-purple);
+  margin-top: 0.25rem;
+}
+
+.sticker-card.is-locked {
+  opacity: 0.5;
+  filter: grayscale(0.8);
+  border-style: dashed;
+}
+
+.sticker-locked-icon {
+  font-size: 1.5rem;
+}
+
+/* ==========================================================
+   CARTOON VIGNETTE ANIMATIONS
+   ========================================================== */
+
+@keyframes gentleBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-7px); }
+}
+
+@keyframes mouthChant {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.22); }
+}
+
+@keyframes slotPulse {
+  0% { transform: scale(1.04); }
+  100% { transform: scale(1.1); }
+}
+
+@keyframes slotSnapPop {
+  0% { transform: scale(0.7); }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.animate-pop-in {
+  animation: modalPopIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes modalPopIn {
+  from {
+    transform: scale(0.75) translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Apple Vignette Animations */
+.anim-chew {
+  animation: chewAction 0.35s infinite alternate ease-in-out;
+  transform-origin: 95px 115px;
+}
+@keyframes chewAction {
+  0% { transform: scaleY(0.7) scaleX(1.1); }
+  100% { transform: scaleY(1.15) scaleX(0.95); }
+}
+
+.anim-apple-float {
+  animation: appleFloat 2s infinite alternate ease-in-out;
+}
+@keyframes appleFloat {
+  0% { transform: translate(180px, 75px) rotate(-5deg); }
+  100% { transform: translate(180px, 70px) rotate(5deg); }
+}
+
+/* Cat Vignette Animations */
+.anim-cat-bounce {
+  animation: catBounce 1.8s infinite alternate ease-in-out;
+}
+@keyframes catBounce {
+  0% { transform: translate(45px, 45px) rotate(-3deg); }
+  100% { transform: translate(45px, 40px) rotate(3deg); }
+}
+.anim-bat-paw {
+  animation: batPaw 0.6s infinite alternate ease-in-out;
+  transform-origin: 108px 85px;
+}
+@keyframes batPaw {
+  0% { transform: rotate(-20deg); }
+  100% { transform: rotate(20deg); }
+}
+.anim-yarn-ball {
+  animation: yarnRoll 1.4s infinite alternate ease-in-out;
+}
+@keyframes yarnRoll {
+  0% { transform: translate(195px, 95px) rotate(0deg); }
+  100% { transform: translate(215px, 95px) rotate(180deg); }
+}
+
+/* Ball Vignette Animations */
+.anim-bouncing-ball {
+  animation: ballBounce 0.8s infinite alternate cubic-bezier(0.2, 0.8, 0.4, 1);
+}
+@keyframes ballBounce {
+  0% { transform: translate(195px, 20px) rotate(0deg); }
+  100% { transform: translate(195px, 95px) scaleY(0.85) scaleX(1.1) rotate(180deg); }
+}
+
+/* Fish Vignette Animations */
+.anim-swimming-fish {
+  animation: fishSwim 2.5s infinite alternate ease-in-out;
+}
+@keyframes fishSwim {
+  0% { transform: translate(90px, 55px); }
+  100% { transform: translate(130px, 45px); }
+}
+.anim-tail-wiggle {
+  animation: tailWiggle 0.4s infinite alternate ease-in-out;
+  transform-origin: 120px 45px;
+}
+@keyframes tailWiggle {
+  0% { transform: rotate(-15deg); }
+  100% { transform: rotate(15deg); }
+}
+.anim-bubble {
+  animation: bubbleRise 2s infinite linear;
+}
+.anim-bubble.b1 { animation-delay: 0s; }
+.anim-bubble.b2 { animation-delay: 0.7s; }
+.anim-bubble.b3 { animation-delay: 1.2s; }
+@keyframes bubbleRise {
+  0% { transform: translateY(60px); opacity: 0; }
+  50% { opacity: 0.7; }
+  100% { transform: translateY(-40px); opacity: 0; }
+}
+
+/* Car Vignette Animations */
+.anim-wheel-spin {
+  animation: wheelSpin 0.7s infinite linear;
+}
+@keyframes wheelSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.anim-driving-car {
+  animation: carVroom 0.4s infinite alternate ease-in-out;
+}
+@keyframes carVroom {
+  0% { transform: translate(60px, 50px); }
+  100% { transform: translate(60px, 47px); }
+}
+.anim-exhaust {
+  animation: exhaustPuff 0.6s infinite ease-out;
+}
+@keyframes exhaustPuff {
+  0% { transform: scale(0.3); opacity: 0.8; }
+  100% { transform: translate(-25px, -15px) scale(1.8); opacity: 0; }
+}
+
+/* Book Vignette Animations */
+.anim-open-book {
+  animation: bookGlow 2s infinite alternate ease-in-out;
+}
+@keyframes bookGlow {
+  0% { transform: translate(75px, 95px) scale(1); }
+  100% { transform: translate(75px, 95px) scale(1.04); }
+}
+.star-pop {
+  animation: starBlink 1.2s infinite alternate ease-in-out;
+}
+@keyframes starBlink {
+  0% { opacity: 0.3; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1.3); }
+}
+
+/* Helper hidden class */
+.hidden {
+  display: none !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 0.75rem 1rem;
+  }
+  .brand-title {
+    font-size: 1.25rem;
+  }
+  .brand-subtitle {
+    display: none;
+  }
+  .target-letter-slot, .monster-letter-card {
+    width: 68px;
+    height: 76px;
+  }
+  .slot-placeholder {
+    font-size: 1.7rem;
+  }
+  .theater-stage {
+    height: 180px;
+  }
+  .theater-word-text {
+    font-size: 2rem;
+  }
+}

@@ -1,0 +1,471 @@
+// Audio Engine for Monster Phonics
+// Synthesizes joyful cartoon sound effects via Web Audio API
+// Pronounces words and continuous phonics chants via Web Speech API
+
+import { LETTER_PHONICS_MAP } from '../data/words.js';
+
+class AudioEngine {
+  constructor() {
+    this.ctx = null;
+    this.isMuted = false;
+    this.phonicsInterval = null;
+    this.currentChantingLetter = null;
+    this.speechSynth = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
+    this.idVoice = null;
+    this.initVoices();
+  }
+
+  ensureContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume();
+    }
+  }
+
+  initVoices() {
+    if (!this.speechSynth) return;
+    const findVoice = () => {
+      const voices = this.speechSynth.getVoices();
+      // Try Indonesian voice first, fallback to standard or cute pitch
+      this.idVoice = voices.find(v => v.lang.startsWith('id') || v.lang.includes('ID')) ||
+                     voices.find(v => v.lang.startsWith('en')) ||
+                     voices[0] || null;
+    };
+    findVoice();
+    if (this.speechSynth.onvoiceschanged !== undefined) {
+      this.speechSynth.onvoiceschanged = findVoice;
+    }
+  }
+
+  toggleMute() {
+    this.isMuted = !this.isMuted;
+    if (this.isMuted) {
+      this.stopPhonicsChant();
+      if (this.speechSynth) this.speechSynth.cancel();
+    }
+    return this.isMuted;
+  }
+
+  // --- Web Audio SFX ---
+
+  playGrab() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(220, now);
+    osc.frequency.exponentialRampToValueAtTime(560, now + 0.12);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(now);
+    osc.stop(now + 0.15);
+  }
+
+  playDropReturn() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    const now = this.ctx.currentTime;
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(420, now);
+    osc.frequency.exponentialRampToValueAtTime(140, now + 0.25);
+
+    // Spring wobble
+    const lfo = this.ctx.createOscillator();
+    const lfoGain = this.ctx.createGain();
+    lfo.frequency.value = 16;
+    lfoGain.gain.value = 40;
+    lfo.connect(osc.frequency);
+
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    lfo.start(now);
+    osc.start(now);
+    lfo.stop(now + 0.28);
+    osc.stop(now + 0.28);
+  }
+
+  playSnap() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6 bell chord
+
+    notes.forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const startTime = now + idx * 0.035;
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(freq, startTime);
+
+      gain.gain.setValueAtTime(0.2, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, startTime + 0.35);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(startTime);
+      osc.stop(startTime + 0.36);
+    });
+  }
+
+  playWordCelebration() {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    // Joyous fanfare arpeggio: C5, D5, E5, G5, A5, C6 (high triumphant)
+    const melody = [
+      { f: 523.25, t: 0, d: 0.12 },
+      { f: 659.25, t: 0.1, d: 0.12 },
+      { f: 783.99, t: 0.2, d: 0.14 },
+      { f: 1046.5, t: 0.32, d: 0.4 },
+      { f: 1318.51, t: 0.46, d: 0.6 }
+    ];
+
+    melody.forEach(note => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      const st = now + note.t;
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(note.f, st);
+
+      gain.gain.setValueAtTime(0.28, st);
+      gain.gain.exponentialRampToValueAtTime(0.001, st + note.d);
+
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+
+      osc.start(st);
+      osc.stop(st + note.d);
+    });
+  }
+
+  playVignetteSound(type) {
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    switch (type) {
+      case 'crunch': {
+        // Crisp bite crunch (noise burst + filter)
+        const bufferSize = this.ctx.sampleRate * 0.15;
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+        }
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 1800;
+
+        const gain = this.ctx.createGain();
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.16);
+
+        noise.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        noise.start(now);
+        break;
+      }
+      case 'bounce': {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(180, now);
+        osc.frequency.exponentialRampToValueAtTime(450, now + 0.12);
+        osc.frequency.exponentialRampToValueAtTime(220, now + 0.28);
+
+        gain.gain.setValueAtTime(0.35, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.3);
+        break;
+      }
+      case 'meow': {
+        // Cat meow pitch glide
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(380, now);
+        osc.frequency.exponentialRampToValueAtTime(620, now + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(420, now + 0.35);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 1200;
+
+        gain.gain.setValueAtTime(0.01, now);
+        gain.gain.linearRampToValueAtTime(0.25, now + 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.42);
+        break;
+      }
+      case 'vroom': {
+        // Cartoon car vroom rev
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(110, now);
+        osc.frequency.linearRampToValueAtTime(280, now + 0.35);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.55);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.55);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.55);
+        break;
+      }
+      case 'splash': {
+        // Bubbly splash
+        [400, 600, 800].forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const st = now + idx * 0.06;
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(f, st);
+          osc.frequency.exponentialRampToValueAtTime(f * 1.5, st + 0.1);
+
+          gain.gain.setValueAtTime(0.2, st);
+          gain.gain.exponentialRampToValueAtTime(0.01, st + 0.15);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(st);
+          osc.stop(st + 0.16);
+        });
+        break;
+      }
+      case 'twinkle':
+      default: {
+        // Sparkling fairy chimes
+        [880, 1100, 1320, 1760].forEach((freq, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          const st = now + idx * 0.07;
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, st);
+          gain.gain.setValueAtTime(0.18, st);
+          gain.gain.exponentialRampToValueAtTime(0.001, st + 0.28);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(st);
+          osc.stop(st + 0.3);
+        });
+        break;
+      }
+    }
+  }
+
+  // --- Real-time Phonics Drag Chanting ---
+
+  startPhonicsChant(letter) {
+    if (this.isMuted) return;
+    this.ensureContext();
+    this.stopPhonicsChant();
+
+    this.currentChantingLetter = letter.toUpperCase();
+    const info = LETTER_PHONICS_MAP[this.currentChantingLetter] || { chant: letter, sound: letter };
+
+    const playOneChant = () => {
+      if (this.isMuted || !this.currentChantingLetter) return;
+
+      // 1. Cute melodic chirp via Web Audio
+      if (this.ctx) {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        // Pitch based on letter char code to give each monster its unique tone
+        const baseFreq = 320 + (letter.charCodeAt(0) - 65) * 16;
+        osc.frequency.setValueAtTime(baseFreq, now);
+        osc.frequency.exponentialRampToValueAtTime(baseFreq * 1.3, now + 0.12);
+
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.18);
+      }
+
+      // 2. Kid voice phonics utterance via Web Speech API
+      if (this.speechSynth && !this.speechSynth.speaking) {
+        const utter = new SpeechSynthesisUtterance(info.sound || letter);
+        utter.lang = 'id-ID';
+        if (this.idVoice) utter.voice = this.idVoice;
+        utter.pitch = 1.45; // High playful cartoon pitch
+        utter.rate = 1.15; // Crisp snappy pronunciation
+        utter.volume = 0.9;
+        this.speechSynth.speak(utter);
+      }
+    };
+
+    // Immediate first chant
+    playOneChant();
+    // Continuous loop while dragged
+    this.phonicsInterval = setInterval(playOneChant, 700);
+  }
+
+  stopPhonicsChant() {
+    if (this.phonicsInterval) {
+      clearInterval(this.phonicsInterval);
+      this.phonicsInterval = null;
+    }
+    this.currentChantingLetter = null;
+    if (this.speechSynth && this.speechSynth.speaking) {
+      // Don't cancel if already in whole word reading
+      if (!this.isPlayingWordNarration) {
+        this.speechSynth.cancel();
+      }
+    }
+  }
+
+  // --- Word Phonics Spelling & Definition Reading ---
+
+  speakWordSequence(wordData, onLetterStep, onComplete) {
+    if (this.isMuted || !this.speechSynth) {
+      if (onComplete) setTimeout(onComplete, 800);
+      return;
+    }
+
+    this.isPlayingWordNarration = true;
+    this.speechSynth.cancel();
+
+    const letters = wordData.word.split('');
+    let currentIndex = 0;
+
+    const speakNextLetter = () => {
+      if (currentIndex < letters.length) {
+        const char = letters[currentIndex];
+        if (onLetterStep) onLetterStep(currentIndex);
+
+        const info = LETTER_PHONICS_MAP[char] || { sound: char };
+        const utter = new SpeechSynthesisUtterance(info.sound);
+        utter.lang = 'id-ID';
+        if (this.idVoice) utter.voice = this.idVoice;
+        utter.pitch = 1.4;
+        utter.rate = 1.1;
+
+        utter.onend = () => {
+          currentIndex++;
+          setTimeout(speakNextLetter, 180);
+        };
+        utter.onerror = () => {
+          currentIndex++;
+          speakNextLetter();
+        };
+
+        this.speechSynth.speak(utter);
+      } else {
+        // Step 2: Speak whole word triumphantly!
+        setTimeout(() => {
+          if (onLetterStep) onLetterStep(-1); // reset highlights
+          this.playWordCelebration();
+
+          const wordUtter = new SpeechSynthesisUtterance(wordData.soundWord || wordData.word);
+          wordUtter.lang = 'id-ID';
+          if (this.idVoice) wordUtter.voice = this.idVoice;
+          wordUtter.pitch = 1.3;
+          wordUtter.rate = 0.95;
+
+          wordUtter.onend = () => {
+            // Step 3: Speak friendly meaning
+            setTimeout(() => {
+              const meaningUtter = new SpeechSynthesisUtterance(wordData.meaning);
+              meaningUtter.lang = 'id-ID';
+              if (this.idVoice) meaningUtter.voice = this.idVoice;
+              meaningUtter.pitch = 1.15;
+              meaningUtter.rate = 1.0;
+
+              meaningUtter.onend = () => {
+                this.isPlayingWordNarration = false;
+                if (onComplete) onComplete();
+              };
+              meaningUtter.onerror = () => {
+                this.isPlayingWordNarration = false;
+                if (onComplete) onComplete();
+              };
+
+              this.speechSynth.speak(meaningUtter);
+            }, 300);
+          };
+
+          wordUtter.onerror = () => {
+            this.isPlayingWordNarration = false;
+            if (onComplete) onComplete();
+          };
+
+          this.speechSynth.speak(wordUtter);
+        }, 300);
+      }
+    };
+
+    speakNextLetter();
+  }
+
+  speakText(text, pitch = 1.2, onEnd = null) {
+    if (this.isMuted || !this.speechSynth) {
+      if (onEnd) setTimeout(onEnd, 500);
+      return;
+    }
+    this.speechSynth.cancel();
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = 'id-ID';
+    if (this.idVoice) utter.voice = this.idVoice;
+    utter.pitch = pitch;
+    utter.rate = 1.0;
+    if (onEnd) {
+      utter.onend = onEnd;
+      utter.onerror = onEnd;
+    }
+    this.speechSynth.speak(utter);
+  }
+}
+
+export const audioEngine = new AudioEngine();

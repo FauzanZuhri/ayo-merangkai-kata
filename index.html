@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Monster Fonik - Belajar Mengeja & Puzzle Kata Seru</title>
+  <meta name="description" content="Aplikasi edukasi interaktif berbasis puzzle fonik monster untuk anak-anak. Karakter huruf monster hidup, melafalkan bunyi fonik, dan animasi kartun edukatif ramah anak tanpa tekanan skor atau batas waktu.">
+
+  <!-- Google Fonts: Fredoka & Quicksand & Nunito -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700;900&family=Nunito:wght@700;900&family=Quicksand:wght@600;700&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👾</text></svg>">
+</head>
+<body>
+
+  <!-- Top App Header -->
+  <header class="app-header">
+    <div class="brand-badge">
+      <div class="brand-icon-anim" aria-hidden="true">👾</div>
+      <div>
+        <div class="brand-title">Monster Fonik</div>
+        <div class="brand-subtitle">Puzzle Kata Ajaib</div>
+      </div>
+    </div>
+
+    <div class="header-controls">
+      <button class="btn-icon-pill" id="btn-sound-toggle" aria-label="Nyalakan atau Matikan Suara">
+        <span id="sound-toggle-icon">🔊</span>
+        <span>Suara</span>
+      </button>
+      <button class="btn-icon-pill btn-stickers" id="btn-open-stickers" aria-label="Buka Buku Stiker Koleksi Kata">
+        <span>📖</span>
+        <span>Buku Stiker</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Game Arena -->
+  <main class="game-arena">
+    <!-- Word Target Mission Card -->
+    <section class="word-mission-card" aria-label="Area Ejaan Kata Target">
+      <div class="mission-top-bar">
+        <span class="mission-category" id="mission-category">🐱 Hewan</span>
+        <div class="word-navigator">
+          <button class="nav-arrow-btn" id="btn-prev-word" aria-label="Kata Sebelumnya" title="Kata Sebelumnya">◀</button>
+          <button class="nav-arrow-btn" id="btn-next-word-top" aria-label="Kata Berikutnya" title="Kata Berikutnya">▶</button>
+        </div>
+      </div>
+
+      <!-- Playful Clue / Hint -->
+      <div class="mission-hint-box">
+        <span class="hint-icon" aria-hidden="true">💡</span>
+        <span class="hint-text" id="mission-hint">Hewan berbulu yang suka mengeong</span>
+      </div>
+
+      <!-- Target Slots (Where letters snap into place) -->
+      <div class="target-word-frame" id="target-word-frame" role="region" aria-label="Bingkai Huruf Target">
+        <!-- Dynamically injected slot divs -->
+      </div>
+    </section>
+
+    <!-- Monster Letters Tray -->
+    <section class="tray-wrapper" aria-label="Kotak Huruf Monster">
+      <div class="tray-title-bar">
+        <span>✨ Sentuh & seret monster huruf ke bingkai kata di atas! ✨</span>
+      </div>
+      <div class="monster-tray" id="monster-tray" role="region" aria-label="Pilihan Huruf Monster">
+        <!-- Dynamically injected draggable monster letter elements -->
+      </div>
+    </section>
+  </main>
+
+  <!-- Vignette Theater Modal (Celebration, Cartoon Vignette, and Child Meaning) -->
+  <div id="vignette-theater-container" class="hidden" aria-live="polite"></div>
+
+  <!-- Sticker Book Modal -->
+  <div id="sticker-book-container" class="hidden" aria-live="polite"></div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
