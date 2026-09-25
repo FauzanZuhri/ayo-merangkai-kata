@@ -1,30 +1,48 @@
 /* ==========================================================
-   MONSTER PHONICS (APLIKASI PUZZLE FONIK MONSTER)
-   Rich Kid-Friendly Design System & Keyframe Animations
+   AYO MERANGKAI KATA (MONSTER PHONICS)
+   Theme: Papercraft & Doodle Art (Playing on Physical Paper)
+   Aesthetics: Hand-drawn marker outlines, paper textures, 
+   washi tapes, die-cut stickers, and tactile paper physics.
    ========================================================== */
 
 :root {
-  --font-primary: 'Fredoka', 'Nunito', system-ui, sans-serif;
-  --font-reading: 'Quicksand', 'Nunito', sans-serif;
+  /* Enforce child-friendly handwriting fonts globally */
+  --font-primary: 'Balsamiq Sans', 'Patrick Hand', cursive, system-ui, sans-serif;
+  --font-heading: 'Patrick Hand', 'Balsamiq Sans', cursive, sans-serif;
+  --font-body: 'Balsamiq Sans', cursive, sans-serif;
 
-  /* Playful Pastel & Vibrant Palette */
-  --bg-sky: linear-gradient(180deg, #E0F7FA 0%, #FFF9DB 50%, #FFE8D6 100%);
-  --color-primary: #FF5964;
-  --color-primary-hover: #E63946;
-  --color-accent: #FFD166;
-  --color-teal: #06D6A0;
-  --color-blue: #118AB2;
-  --color-purple: #8338EC;
-  --color-pink: #FF85A1;
+  /* Papercraft & Doodle Palette */
+  --paper-bg: #FAF6ED;          /* Warm notebook / sketchbook paper */
+  --paper-sheet: #FFFFFF;       /* Clean paper cutout */
+  --paper-tray: #F4EBD9;        /* Warm kraft paper desk mat */
+  --paper-postit: #FFF9C4;      /* Yellow sticky post-it note */
+  --color-marker: #282A3A;      /* Solid dark marker ink outline */
+  
+  /* Soft Pastel & Cheerful Craft Colors */
+  --color-primary: #FF7582;     /* Pastel coral red */
+  --color-primary-hover: #FF5A6B;
+  --color-mint: #7AE7C7;        /* Soft pastel mint */
+  --color-lemon: #FFD166;       /* Cheerful butter yellow */
+  --color-sky: #62B6CB;         /* Pastel sky blue */
+  --color-lavender: #CDB4DB;    /* Soft pastel lilac */
+  --color-peach: #FFC6A5;       /* Warm pastel peach */
+  --color-banana: #FFF3B0;      /* Light pastel yellow */
+  
+  --text-dark: #282A3A;
+  --text-muted: #646E82;
 
-  --card-bg: rgba(255, 255, 255, 0.85);
-  --card-border: 4px solid #2D3142;
-  --shadow-clay: 0 8px 0 #2D3142, 0 14px 20px rgba(0, 0, 0, 0.12);
-  --shadow-btn: 0 6px 0 #2D3142, 0 10px 15px rgba(0, 0, 0, 0.1);
-  --shadow-btn-active: 0 2px 0 #2D3142, 0 4px 6px rgba(0, 0, 0, 0.15);
+  /* Irregular hand-drawn border-radius tokens */
+  --radius-card: 255px 25px 225px 25px / 25px 225px 25px 255px;
+  --radius-btn: 255px 18px 225px 18px / 18px 225px 18px 255px;
+  --radius-slot: 255px 16px 225px 16px / 16px 225px 16px 255px;
+  --radius-badge: 255px 12px 225px 12px / 12px 225px 12px 255px;
+  --radius-modal: 255px 32px 225px 32px / 32px 225px 32px 255px;
 
-  --text-dark: #2D3142;
-  --text-muted: #5C6279;
+  /* Tactile cutout paper shadows */
+  --shadow-paper-cutout: 3px 4px 0px var(--color-marker);
+  --shadow-paper-btn: 2.5px 3.5px 0px var(--color-marker);
+  --shadow-paper-active: 1px 1px 0px var(--color-marker);
+  --shadow-paper-tray: 4px 5px 0px var(--color-marker);
 }
 
 * {
@@ -35,9 +53,19 @@
   user-select: none;
 }
 
+/* ==========================================================
+   GLOBAL BODY & PAPERCRAFT NOTEBOOK BACKGROUND
+   ========================================================== */
+
 body {
   font-family: var(--font-primary);
-  background: var(--bg-sky);
+  background-color: var(--paper-bg);
+  /* Lined notebook grid with soft margin line */
+  background-image: 
+    linear-gradient(rgba(175, 195, 220, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(175, 195, 220, 0.28) 1px, transparent 1px),
+    linear-gradient(90deg, transparent 48px, rgba(255, 120, 140, 0.3) 48px, rgba(255, 120, 140, 0.3) 50px, transparent 50px);
+  background-size: 28px 28px, 28px 28px, 100% 100%;
   color: var(--text-dark);
   min-height: 100vh;
   display: flex;
@@ -46,46 +74,66 @@ body {
   position: relative;
 }
 
-/* Background floating decorative clouds & bubbles */
+/* Decorative subtle paper doodles in the corners */
 body::before, body::after {
   content: '';
   position: fixed;
-  border-radius: 50%;
   pointer-events: none;
   z-index: 0;
+  opacity: 0.35;
 }
 
 body::before {
-  top: -80px;
-  left: -80px;
-  width: 320px;
-  height: 320px;
-  background: radial-gradient(circle, rgba(255, 209, 102, 0.25) 0%, transparent 70%);
+  top: 15px;
+  left: 12px;
+  width: 32px;
+  height: 32px;
+  background-image: radial-gradient(circle, #282A3A 2px, transparent 2px);
+  background-size: 8px 8px;
 }
 
 body::after {
-  bottom: -100px;
-  right: -100px;
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, rgba(6, 214, 160, 0.2) 0%, transparent 70%);
+  bottom: 20px;
+  right: 25px;
+  width: 50px;
+  height: 50px;
+  border: 3px dashed rgba(40, 42, 58, 0.3);
+  border-radius: 50%;
 }
 
 /* ==========================================================
-   APP HEADER
+   WASHI TAPE PAPER ACCENT
+   ========================================================== */
+
+.washi-tape {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 110px;
+  height: 26px;
+  background: rgba(255, 214, 102, 0.85);
+  border-left: 3px dashed rgba(40, 42, 58, 0.35);
+  border-right: 3px dashed rgba(40, 42, 58, 0.35);
+  box-shadow: 0 2px 4px rgba(40, 42, 58, 0.08);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* ==========================================================
+   APP HEADER (PAPER BANNER)
    ========================================================== */
 
 .app-header {
   position: relative;
-  z-index: 10;
+  z-index: 20;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.75rem;
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(12px);
-  border-bottom: 3.5px solid #2D3142;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 0.9rem 1.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 3.5px solid var(--color-marker);
+  box-shadow: 0 4px 0px rgba(40, 42, 58, 0.06);
 }
 
 .brand-badge {
@@ -95,66 +143,75 @@ body::after {
 }
 
 .brand-icon-anim {
-  font-size: 2.4rem;
-  filter: drop-shadow(0 4px 0 #2D3142);
-  animation: gentleBob 2.5s ease-in-out infinite;
+  font-size: 2.2rem;
+  filter: drop-shadow(2px 3px 0px var(--color-marker));
+  animation: doodleBob 3s ease-in-out infinite;
 }
 
 .brand-title {
-  font-size: 1.6rem;
-  font-weight: 900;
-  letter-spacing: -0.5px;
+  font-family: var(--font-heading);
+  font-size: 1.65rem;
+  font-weight: 700;
   color: var(--text-dark);
   line-height: 1.1;
+  letter-spacing: 0.3px;
 }
 
 .brand-subtitle {
+  font-family: var(--font-primary);
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-purple);
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
+  color: #7A5EA7;
+  letter-spacing: 0.5px;
 }
 
 .header-controls {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.85rem;
 }
 
+/* Big tactile doodle pill buttons */
 .btn-icon-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.55rem;
   background: #FFFFFF;
-  border: 3px solid #2D3142;
-  border-radius: 999px;
-  padding: 0.5rem 1.1rem;
-  font-family: var(--font-primary);
-  font-size: 0.95rem;
-  font-weight: 800;
+  border: 3px solid var(--color-marker);
+  border-radius: var(--radius-btn);
+  padding: 0.65rem 1.2rem;
+  min-height: 48px;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-dark);
-  box-shadow: var(--shadow-btn);
+  box-shadow: var(--shadow-paper-btn);
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-icon-pill .control-emoji {
+  font-size: 1.25rem;
 }
 
 .btn-icon-pill:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 0 #2D3142;
+  box-shadow: 3px 5px 0px var(--color-marker);
 }
 
 .btn-icon-pill:active {
-  transform: translateY(3px);
-  box-shadow: var(--shadow-btn-active);
+  transform: translate(2px, 3px);
+  box-shadow: var(--shadow-paper-active);
 }
 
 .btn-icon-pill.btn-stickers {
-  background: #FFE066;
+  background: var(--color-banana);
+  border-color: var(--color-marker);
 }
 
 /* ==========================================================
-   MAIN ARENA
+   MAIN GAME ARENA
    ========================================================== */
 
 .game-arena {
@@ -165,26 +222,30 @@ body::after {
   flex-direction: column;
   align-items: center;
   justify-content: space-between;
-  padding: 1rem 1.25rem 2rem;
-  max-width: 980px;
+  padding: 1.25rem 1.25rem 1.75rem;
+  max-width: 960px;
   margin: 0 auto;
   width: 100%;
 }
 
-/* Word Card / Banner */
+/* ==========================================================
+   WORD TARGET MISSION CARD (SKETCHBOOK NOTEBOOK SHEET)
+   ========================================================== */
+
 .word-mission-card {
   width: 100%;
-  background: var(--card-bg);
-  backdrop-filter: blur(10px);
-  border: var(--card-border);
-  border-radius: 28px;
-  box-shadow: var(--shadow-clay);
-  padding: 1.25rem 1.75rem;
+  background: var(--paper-sheet);
+  border: 3.5px solid var(--color-marker);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-paper-cutout);
+  padding: 1.4rem 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.1rem;
   position: relative;
+  /* Subtle lined notebook paper effect inside the card */
+  background-image: repeating-linear-gradient(transparent, transparent 31px, rgba(220, 230, 242, 0.45) 31px, rgba(220, 230, 242, 0.45) 32px);
 }
 
 .mission-top-bar {
@@ -192,53 +253,65 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.85rem;
 }
 
 .mission-category {
-  background: #E0F4FF;
-  border: 2.5px solid #2D3142;
-  border-radius: 999px;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.85rem;
-  font-weight: 800;
+  background: #E8F4F8;
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-badge);
+  padding: 0.4rem 1rem;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
+  box-shadow: 2px 2px 0px var(--color-marker);
 }
 
 .word-navigator {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
+/* Large arrow buttons for tablet small fingers */
 .nav-arrow-btn {
   background: #FFFFFF;
-  border: 2.5px solid #2D3142;
-  border-radius: 12px;
-  width: 38px;
-  height: 38px;
+  border: 3px solid var(--color-marker);
+  border-radius: var(--radius-btn);
+  width: 50px;
+  height: 50px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1.35rem;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 3px 0 #2D3142;
-  transition: all 0.12s;
+  box-shadow: var(--shadow-paper-btn);
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.nav-arrow-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 5px 0px var(--color-marker);
+  background: #FFFDF5;
 }
 
 .nav-arrow-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 0 #2D3142;
+  transform: translate(2px, 3px);
+  box-shadow: var(--shadow-paper-active);
 }
 
+/* Post-it / Sticky note hint */
 .mission-hint-box {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.6rem;
-  margin-bottom: 1.2rem;
-  background: #FFF9DB;
-  border: 2px dashed #FFD166;
-  border-radius: 16px;
-  padding: 0.5rem 1.2rem;
+  margin-bottom: 1.25rem;
+  background: var(--paper-postit);
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-btn);
+  padding: 0.5rem 1.25rem;
+  transform: rotate(-0.8deg);
+  box-shadow: 2px 3px 0px rgba(40, 42, 58, 0.18);
 }
 
 .hint-icon {
@@ -246,14 +319,14 @@ body::after {
 }
 
 .hint-text {
-  font-family: var(--font-reading);
-  font-size: 1rem;
+  font-family: var(--font-primary);
+  font-size: 1.05rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--text-dark);
 }
 
 /* ==========================================================
-   TARGET WORD FRAME (SLOTS FOR LETTERS)
+   TARGET WORD FRAME (STENCIL / PAPER SLOTS)
    ========================================================== */
 
 .target-word-frame {
@@ -261,52 +334,54 @@ body::after {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1rem;
-  margin: 0.5rem 0 1rem;
+  gap: 1.1rem;
+  margin: 0.4rem 0 0.8rem;
   width: 100%;
 }
 
 .target-letter-slot {
-  width: 88px;
-  height: 96px;
-  background: #F4F6FB;
-  border: 3.5px dashed #B8C0D4;
-  border-radius: 22px;
+  width: 92px;
+  height: 100px;
+  background: #FAF8F2;
+  border: 3.5px dashed #A0AEC0;
+  border-radius: var(--radius-slot);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   position: relative;
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: inset 1px 2px 4px rgba(40, 42, 58, 0.05);
 }
 
 .slot-placeholder {
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: #C5CBD9;
-  letter-spacing: 0;
+  font-family: var(--font-heading);
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: #B8C2D4;
   transition: color 0.2s;
 }
 
-/* Hover near correct slot */
+/* Slot hover near correct letter */
 .target-letter-slot.slot-hover-snap {
   border-color: #06D6A0;
   background: #E8FFF8;
-  transform: scale(1.08);
-  box-shadow: 0 0 20px rgba(6, 214, 160, 0.5);
-  animation: slotPulse 0.8s ease-in-out infinite alternate;
+  border-style: solid;
+  transform: scale(1.08) rotate(1deg);
+  box-shadow: 0 0 16px rgba(6, 214, 160, 0.45);
 }
 
 .target-letter-slot.slot-hover-snap .slot-placeholder {
   color: #06D6A0;
 }
 
-/* Filled slot */
+/* Filled letter slot (Physical Paper Sticker Snapped Down) */
 .target-letter-slot.slot-filled {
-  border: 3.5px solid #2D3142;
-  background: transparent;
-  box-shadow: var(--shadow-btn);
-  animation: slotSnapPop 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 3.5px solid var(--color-marker);
+  background: #FFFFFF;
+  border-style: solid;
+  box-shadow: var(--shadow-paper-cutout);
+  animation: paperStuckPop 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .target-letter-slot.slot-filled .monster-svg {
@@ -314,20 +389,27 @@ body::after {
   height: 100%;
 }
 
-/* Highlight letter during full-word sequence pronunciation */
+@keyframes paperStuckPop {
+  0% { transform: scale(0.8) rotate(-4deg); }
+  60% { transform: scale(1.1) rotate(2deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* Speaking letter highlight */
 .target-letter-slot.letter-speaking-highlight {
   transform: scale(1.15) translateY(-6px);
-  box-shadow: 0 12px 25px rgba(255, 89, 100, 0.5);
+  border-color: var(--color-primary);
+  box-shadow: 0 10px 20px rgba(255, 117, 130, 0.4);
   z-index: 15;
 }
 
 /* ==========================================================
-   MONSTER LETTER TRAY (BOTTOM AREA)
+   MONSTER LETTER TRAY (DESK MAT / PAPERCRAFT TRAY)
    ========================================================== */
 
 .tray-wrapper {
   width: 100%;
-  margin-top: 1rem;
+  margin-top: 0.8rem;
 }
 
 .tray-title-bar {
@@ -335,10 +417,18 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 0.75rem;
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--text-muted);
+  margin-bottom: 0.6rem;
+}
+
+.doodle-tray-hint {
+  font-family: var(--font-heading);
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #555E70;
+  background: rgba(255, 255, 255, 0.7);
+  border: 2px dashed rgba(40, 42, 58, 0.25);
+  border-radius: var(--radius-badge);
+  padding: 0.25rem 0.9rem;
 }
 
 .monster-tray {
@@ -346,49 +436,76 @@ body::after {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1.1rem;
-  min-height: 120px;
-  background: rgba(255, 255, 255, 0.65);
-  backdrop-filter: blur(8px);
-  border: var(--card-border);
-  border-radius: 28px;
+  gap: 1.2rem;
+  min-height: 124px;
+  background: var(--paper-tray);
+  border: 3.5px solid var(--color-marker);
+  border-radius: 20px 255px 20px 245px / 245px 20px 255px 20px;
   padding: 1.25rem;
-  box-shadow: var(--shadow-clay);
+  box-shadow: var(--shadow-paper-tray);
 }
 
+/* ==========================================================
+   PAPERCRAFT MONSTER LETTER CARDS & PHYSICS
+   ========================================================== */
+
 .monster-letter-card {
-  width: 88px;
-  height: 96px;
+  width: 90px;
+  height: 98px;
   cursor: grab;
   position: relative;
   touch-action: none;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-  animation: gentleBob 3s ease-in-out infinite;
+  transition: transform 0.15s ease, filter 0.15s ease;
+  filter: drop-shadow(2px 3px 0px rgba(40, 42, 58, 0.7));
 }
 
-.monster-letter-card:nth-child(2n) {
-  animation-delay: 0.4s;
+/* Playful alternating resting tilts to simulate hand-placed paper cutouts on a desk */
+.monster-letter-card:nth-child(4n+1) {
+  transform: rotate(-2deg);
 }
-
-.monster-letter-card:nth-child(3n) {
-  animation-delay: 0.8s;
+.monster-letter-card:nth-child(4n+2) {
+  transform: rotate(2.5deg);
+}
+.monster-letter-card:nth-child(4n+3) {
+  transform: rotate(-1.5deg);
+}
+.monster-letter-card:nth-child(4n) {
+  transform: rotate(1.8deg);
 }
 
 .monster-letter-card:hover {
-  transform: translateY(-5px) scale(1.05);
+  transform: translateY(-4px) scale(1.06);
+  filter: drop-shadow(3px 6px 0px rgba(40, 42, 58, 0.85));
 }
 
 .monster-letter-card:active {
   cursor: grabbing;
 }
 
+/* During drag: original element on tray turns faint */
 .monster-letter-card.is-being-dragged {
-  opacity: 0.3;
-  transform: scale(0.9);
+  opacity: 0.25;
+  transform: scale(0.92);
 }
 
 .monster-letter-card.is-placed {
   display: none;
+}
+
+/* LIFTED PAPER PHYSICS (Drag Ghost) */
+.monster-drag-ghost {
+  cursor: grabbing;
+  filter: drop-shadow(8px 18px 14px rgba(40, 42, 58, 0.32));
+  transition: none;
+}
+
+.monster-drag-ghost.paper-drag-lifted {
+  /* Class toggled during dragstart */
+  filter: drop-shadow(10px 20px 16px rgba(40, 42, 58, 0.38)) !important;
+}
+
+.monster-drag-ghost.paper-sticking {
+  filter: drop-shadow(2px 3px 0px rgba(40, 42, 58, 0.7)) !important;
 }
 
 .monster-svg {
@@ -398,6 +515,11 @@ body::after {
   overflow: visible;
 }
 
+/* Authentic physical die-cut white outline inside SVG */
+.die-cut-sticker-svg .sticker-diecut-white-base {
+  filter: drop-shadow(1px 2px 3px rgba(40, 42, 58, 0.15));
+}
+
 /* Animated talking mouth when dragged */
 .monster-mouth-chanting {
   animation: mouthChant 0.25s infinite alternate ease-in-out;
@@ -405,7 +527,7 @@ body::after {
 }
 
 /* ==========================================================
-   SPARKLE & CONFETTI PARTICLES
+   SPARKLE PARTICLES
    ========================================================== */
 
 .sparkle-burst-container {
@@ -415,9 +537,10 @@ body::after {
 
 .sparkle-star {
   position: absolute;
-  font-size: 1.5rem;
+  font-size: 1.6rem;
   transform: translate(-50%, -50%);
   opacity: 0;
+  text-shadow: 1px 1px 0px #282A3A;
 }
 
 @keyframes sparklePop {
@@ -435,14 +558,14 @@ body::after {
 }
 
 /* ==========================================================
-   VIGNETTE THEATER MODAL (ANIMATED CARTOON & MEANING)
+   VIGNETTE THEATER MODAL (POP-UP STORYBOOK THEATER)
    ========================================================== */
 
 .theater-backdrop, .sticker-book-backdrop {
   position: fixed;
   inset: 0;
   background: rgba(30, 36, 56, 0.65);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(6px);
   z-index: 1000;
   display: flex;
   align-items: center;
@@ -452,18 +575,19 @@ body::after {
 
 .theater-modal {
   background: #FFFFFF;
-  border: 4.5px solid #2D3142;
-  border-radius: 36px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  border: 4px solid var(--color-marker);
+  border-radius: var(--radius-modal);
+  box-shadow: 6px 8px 0px var(--color-marker);
   width: 100%;
   max-width: 580px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .theater-header {
-  padding: 1.1rem 1.5rem 0.6rem;
+  padding: 1.2rem 1.5rem 0.6rem;
   text-align: center;
   background: #FFFDF7;
 }
@@ -471,18 +595,20 @@ body::after {
 .theater-category-badge {
   display: inline-block;
   background: #FFE5EC;
-  border: 2px solid #2D3142;
-  border-radius: 999px;
-  padding: 0.25rem 0.85rem;
-  font-size: 0.85rem;
-  font-weight: 800;
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-badge);
+  padding: 0.3rem 0.95rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
   margin-bottom: 0.35rem;
 }
 
 .theater-super-title {
   display: block;
-  font-size: 1.35rem;
-  font-weight: 900;
+  font-family: var(--font-heading);
+  font-size: 1.45rem;
+  font-weight: 700;
   color: var(--color-primary);
 }
 
@@ -493,8 +619,8 @@ body::after {
   display: flex;
   align-items: center;
   justify-content: center;
-  border-top: 3.5px solid #2D3142;
-  border-bottom: 3.5px solid #2D3142;
+  border-top: 3.5px solid var(--color-marker);
+  border-bottom: 3.5px solid var(--color-marker);
   position: relative;
   overflow: hidden;
 }
@@ -514,50 +640,53 @@ body::after {
 }
 
 .theater-word-text {
-  font-size: 2.6rem;
-  font-weight: 900;
+  font-family: var(--font-heading);
+  font-size: 2.8rem;
+  font-weight: 700;
   letter-spacing: 2px;
-  color: var(--color-purple);
-  text-shadow: 0 3px 0 #2D3142;
+  color: #7A5EA7;
+  text-shadow: 2px 2px 0px var(--color-marker);
 }
 
 .sound-repeat-btn {
-  background: #E0F4FF;
-  border: 2.5px solid #2D3142;
-  border-radius: 999px;
-  padding: 0.55rem 1.1rem;
-  font-family: var(--font-primary);
-  font-size: 0.95rem;
-  font-weight: 800;
+  background: #E8F4F8;
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-btn);
+  padding: 0.6rem 1.1rem;
+  min-height: 48px;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--text-dark);
   cursor: pointer;
-  box-shadow: 0 4px 0 #2D3142;
+  box-shadow: var(--shadow-paper-btn);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  transition: all 0.12s;
+  gap: 0.5rem;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .sound-repeat-btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 0 #2D3142;
+  box-shadow: 3px 5px 0px var(--color-marker);
 }
 
 .sound-repeat-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #2D3142;
+  transform: translate(2px, 3px);
+  box-shadow: var(--shadow-paper-active);
 }
 
-/* Meaning card */
+/* Meaning sticky card */
 .theater-meaning-card {
   display: flex;
   align-items: flex-start;
   gap: 0.9rem;
-  background: #FFF9DB;
-  border: 2.5px solid #2D3142;
-  border-radius: 20px;
+  background: var(--paper-postit);
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-btn);
   margin: 0.5rem 1.75rem 1.25rem;
   padding: 1rem 1.25rem;
+  box-shadow: 2px 3px 0px rgba(40, 42, 58, 0.15);
 }
 
 .meaning-icon {
@@ -565,18 +694,18 @@ body::after {
 }
 
 .meaning-text {
-  font-family: var(--font-reading);
+  font-family: var(--font-primary);
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.45;
-  color: #333;
+  color: var(--text-dark);
 }
 
 .story-tagline {
-  font-family: var(--font-primary);
-  font-size: 0.9rem;
-  font-weight: 800;
-  color: var(--color-blue);
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-sky);
   margin-top: 0.4rem;
 }
 
@@ -588,32 +717,33 @@ body::after {
 
 .btn-primary-fun {
   width: 100%;
-  background: #06D6A0;
-  border: 3.5px solid #2D3142;
-  border-radius: 20px;
+  background: var(--color-mint);
+  border: 3.5px solid var(--color-marker);
+  border-radius: var(--radius-btn);
   padding: 1.1rem;
-  font-family: var(--font-primary);
-  font-size: 1.25rem;
-  font-weight: 900;
-  color: #2D3142;
-  box-shadow: var(--shadow-clay);
+  min-height: 56px;
+  font-family: var(--font-heading);
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-marker);
+  box-shadow: var(--shadow-paper-cutout);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  transition: all 0.15s;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
 }
 
 .btn-primary-fun:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 0 #2D3142;
-  background: #10e6ae;
+  box-shadow: 4px 6px 0px var(--color-marker);
+  background: #8EF0D3;
 }
 
 .btn-primary-fun:active {
-  transform: translateY(4px);
-  box-shadow: var(--shadow-btn-active);
+  transform: translate(2px, 3px);
+  box-shadow: var(--shadow-paper-active);
 }
 
 .btn-arrow {
@@ -621,20 +751,26 @@ body::after {
 }
 
 /* ==========================================================
-   STICKER BOOK MODAL
+   STICKER BOOK MODAL (PHYSICAL SCRAPBOOK ALBUM)
    ========================================================== */
 
 .sticker-book-modal {
-  background: #FFFFFF;
-  border: 4.5px solid #2D3142;
-  border-radius: 36px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  background: var(--paper-bg);
+  border: 4px solid var(--color-marker);
+  border-radius: var(--radius-modal);
+  box-shadow: 6px 8px 0px var(--color-marker);
   width: 100%;
   max-width: 680px;
   max-height: 85vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
+  /* Lined notebook grid texture inside the scrapbook album */
+  background-image: 
+    linear-gradient(rgba(175, 195, 220, 0.25) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(175, 195, 220, 0.25) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 
 .sticker-book-header {
@@ -643,7 +779,7 @@ body::after {
   justify-content: space-between;
   padding: 1.25rem 1.75rem;
   background: #FFFDF7;
-  border-bottom: 3.5px solid #2D3142;
+  border-bottom: 3.5px solid var(--color-marker);
 }
 
 .header-title-box {
@@ -652,63 +788,79 @@ body::after {
   gap: 0.75rem;
 }
 
+.header-title-box h2 {
+  font-family: var(--font-heading);
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
 .sticker-emoji {
   font-size: 2.2rem;
 }
 
 .sticker-subtitle {
-  font-family: var(--font-reading);
+  font-family: var(--font-primary);
   font-size: 0.95rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
 .btn-close-modal {
-  background: #FF5964;
+  background: var(--color-primary);
   color: #FFF;
-  border: 3px solid #2D3142;
+  border: 3px solid var(--color-marker);
   border-radius: 50%;
-  width: 42px;
-  height: 42px;
-  font-size: 1.3rem;
+  width: 48px;
+  height: 48px;
+  font-size: 1.35rem;
   font-weight: 900;
   cursor: pointer;
-  box-shadow: 0 4px 0 #2D3142;
-  transition: all 0.12s;
+  box-shadow: var(--shadow-paper-btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.btn-close-modal:hover {
+  transform: translateY(-2px);
+  box-shadow: 3px 5px 0px var(--color-marker);
 }
 
 .btn-close-modal:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #2D3142;
+  transform: translate(2px, 3px);
+  box-shadow: var(--shadow-paper-active);
 }
 
 .sticker-progress-ribbon {
   padding: 0.9rem 1.75rem;
-  background: #FFE8D6;
-  border-bottom: 2.5px solid #2D3142;
+  background: var(--paper-sheet);
+  border-bottom: 3px solid var(--color-marker);
 }
 
 .progress-info {
   display: flex;
   justify-content: space-between;
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 700;
   margin-bottom: 0.4rem;
 }
 
 .progress-bar-bg {
   width: 100%;
-  height: 14px;
+  height: 16px;
   background: #FFF;
-  border: 2px solid #2D3142;
-  border-radius: 999px;
+  border: 2.5px solid var(--color-marker);
+  border-radius: var(--radius-badge);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #FFD166, #06D6A0);
-  border-radius: 999px;
+  background: linear-gradient(90deg, var(--color-lemon), var(--color-mint));
+  border-radius: var(--radius-badge);
   transition: width 0.4s ease;
 }
 
@@ -720,34 +872,36 @@ body::after {
   overflow-y: auto;
 }
 
+/* Individual Sticker Items (Physical Die-Cut Sticker Style) */
 .sticker-card {
-  background: #F8F9FA;
-  border: 3px solid #2D3142;
-  border-radius: 20px;
-  padding: 1rem 0.5rem;
+  padding: 1rem 0.6rem;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  transition: all 0.2s;
+  min-height: 135px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
+/* Unlocked physical die-cut sticker pasted into scrapbook */
 .sticker-card.is-unlocked {
-  background: #FFFDF7;
+  background: #FFFFFF;
+  border: 4px solid #FFFFFF;
+  border-radius: 16px;
+  box-shadow: 1px 3px 6px rgba(40, 42, 58, 0.2), 0 0 0 1.5px rgba(40, 42, 58, 0.12);
   cursor: pointer;
-  box-shadow: 0 5px 0 #2D3142;
 }
 
 .sticker-card.is-unlocked:hover {
-  transform: translateY(-4px) scale(1.04);
-  box-shadow: 0 9px 0 #2D3142;
+  transform: translateY(-5px) scale(1.08) !important;
+  box-shadow: 3px 8px 14px rgba(40, 42, 58, 0.25), 0 0 0 1.5px rgba(40, 42, 58, 0.18) !important;
 }
 
 .sticker-badge {
-  width: 60px;
-  height: 60px;
-  background: #FFE5EC;
-  border: 2.5px solid #2D3142;
+  width: 62px;
+  height: 62px;
+  background: #FFF9E6;
+  border: 2.5px solid var(--color-marker);
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -756,63 +910,64 @@ body::after {
   margin-bottom: 0.5rem;
 }
 
+.sticker-badge.sticker-badge-unlocked {
+  background: #FFF5F7;
+  border-color: var(--color-marker);
+  box-shadow: 1px 2px 0px var(--color-marker);
+}
+
 .sticker-icon {
-  font-size: 1.8rem;
+  font-size: 2rem;
 }
 
 .sticker-star {
   position: absolute;
   top: -6px;
   right: -6px;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
+  filter: drop-shadow(1px 1px 0px var(--color-marker));
 }
 
 .sticker-name {
-  font-size: 1.05rem;
-  font-weight: 900;
+  font-family: var(--font-heading);
+  font-size: 1.2rem;
+  font-weight: 700;
   color: var(--text-dark);
 }
 
 .sticker-hint-mini {
-  font-size: 0.7rem;
+  font-family: var(--font-primary);
+  font-size: 0.75rem;
   font-weight: 700;
-  color: var(--color-purple);
+  color: #7A5EA7;
   margin-top: 0.25rem;
 }
 
+/* Locked placeholder (doodled pencil outline waiting for sticker) */
 .sticker-card.is-locked {
-  opacity: 0.5;
-  filter: grayscale(0.8);
-  border-style: dashed;
+  border: 2.5px dashed #B8C2D4;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  opacity: 0.6;
 }
 
 .sticker-locked-icon {
-  font-size: 1.5rem;
+  font-size: 1.6rem;
+  opacity: 0.7;
 }
 
 /* ==========================================================
-   CARTOON VIGNETTE ANIMATIONS
+   CARTOON VIGNETTE ANIMATIONS & KEYFRAMES
    ========================================================== */
 
-@keyframes gentleBob {
+@keyframes doodleBob {
   0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
+  50% { transform: translateY(-5px); }
 }
 
 @keyframes mouthChant {
   0% { transform: scale(1); }
   100% { transform: scale(1.22); }
-}
-
-@keyframes slotPulse {
-  0% { transform: scale(1.04); }
-  100% { transform: scale(1.1); }
-}
-
-@keyframes slotSnapPop {
-  0% { transform: scale(0.7); }
-  70% { transform: scale(1.15); }
-  100% { transform: scale(1); }
 }
 
 .animate-pop-in {
@@ -821,7 +976,7 @@ body::after {
 
 @keyframes modalPopIn {
   from {
-    transform: scale(0.75) translateY(20px);
+    transform: scale(0.8) translateY(20px);
     opacity: 0;
   }
   to {
@@ -953,28 +1108,44 @@ body::after {
   display: none !important;
 }
 
-/* Responsive adjustments */
+/* ==========================================================
+   RESPONSIVE OPTIMIZATION (TABLETS & MOBILE)
+   ========================================================== */
+
 @media (max-width: 640px) {
   .app-header {
     padding: 0.75rem 1rem;
   }
   .brand-title {
-    font-size: 1.25rem;
+    font-size: 1.3rem;
   }
   .brand-subtitle {
     display: none;
   }
-  .target-letter-slot, .monster-letter-card {
-    width: 68px;
-    height: 76px;
+  .btn-icon-pill {
+    padding: 0.5rem 0.85rem;
+    min-height: 44px;
+    font-size: 0.95rem;
+  }
+  .target-letter-slot {
+    width: 72px;
+    height: 80px;
   }
   .slot-placeholder {
-    font-size: 1.7rem;
+    font-size: 1.9rem;
+  }
+  .monster-letter-card {
+    width: 72px;
+    height: 80px;
   }
   .theater-stage {
     height: 180px;
   }
   .theater-word-text {
-    font-size: 2rem;
+    font-size: 2.2rem;
+  }
+  .nav-arrow-btn {
+    width: 44px;
+    height: 44px;
   }
 }

@@ -41,40 +41,45 @@ export class StickerBook {
     this.containerEl.innerHTML = `
       <div class="sticker-book-backdrop" role="dialog" aria-modal="true">
         <div class="sticker-book-modal animate-pop-in">
+          <!-- Washi tape at top of album -->
+          <div class="washi-tape" aria-hidden="true"></div>
+
           <!-- Header -->
           <div class="sticker-book-header">
             <div class="header-title-box">
-              <span class="sticker-emoji">📖</span>
+              <span class="sticker-emoji">📒</span>
               <div>
-                <h2>Buku Stiker Kata Monster</h2>
-                <p class="sticker-subtitle">Koleksi petualangan kata ajaibmu!</p>
+                <h2>Buku Album Stiker</h2>
+                <p class="sticker-subtitle">Koleksi Stiker Huruf & Kata Ajaib</p>
               </div>
             </div>
             <button class="btn-close-modal" id="btn-close-stickers" aria-label="Tutup Buku Stiker">✕</button>
           </div>
 
-          <!-- Progress Ribbon -->
+          <!-- Hand-drawn Progress Ribbon -->
           <div class="sticker-progress-ribbon">
             <div class="progress-info">
-              <span>Bintang Terkumpul: <strong>${completedCount} / ${totalWords}</strong></span>
-              <span>${completedCount === totalWords ? '🌟 Luar Biasa! Semua Terkumpul!' : 'Yuk kumpulkan semuanya!'}</span>
+              <span>⭐ Bintang Terkumpul: <strong>${completedCount} / ${totalWords}</strong></span>
+              <span>${completedCount === totalWords ? '🎉 Luar Biasa! Koleksi Lengkap!' : 'Ayo kumpulkan stikernya!'}</span>
             </div>
             <div class="progress-bar-bg">
               <div class="progress-bar-fill" style="width: ${(completedCount / totalWords) * 100}%"></div>
             </div>
           </div>
 
-          <!-- Sticker Grid -->
+          <!-- Physical Sticker Scrapbook Grid -->
           <div class="sticker-grid">
-            ${WORDS_DATABASE.map(item => {
+            ${WORDS_DATABASE.map((item, idx) => {
               const isUnlocked = completedIds.includes(item.id);
+              const rotationAngle = (idx % 5 - 2) * 2; // subtle -4deg to +4deg organic tilt
               return `
-                <div class="sticker-card ${isUnlocked ? 'is-unlocked' : 'is-locked'}"
+                <div class="sticker-card ${isUnlocked ? 'is-unlocked die-cut-sticker' : 'is-locked'}"
                      data-id="${item.id}"
                      role="button"
                      tabindex="0"
+                     style="${isUnlocked ? `transform: rotate(${rotationAngle}deg); border: 4px solid white; border-radius: 14px; box-shadow: 1px 2px 5px rgba(0,0,0,0.2);` : ''}"
                      aria-label="${isUnlocked ? item.word : 'Kata Rahasia'}">
-                  <div class="sticker-badge">
+                  <div class="sticker-badge ${isUnlocked ? 'sticker-badge-unlocked' : ''}">
                     ${isUnlocked
                       ? `<div class="sticker-icon">${item.category.split(' ')[0]}</div>
                          <div class="sticker-star">⭐</div>`
@@ -83,7 +88,7 @@ export class StickerBook {
                   <div class="sticker-name">
                     ${isUnlocked ? item.word : '???'}
                   </div>
-                  ${isUnlocked ? '<div class="sticker-hint-mini">Sentuh untuk dengar!</div>' : ''}
+                  ${isUnlocked ? '<div class="sticker-hint-mini">🔊 Sentuh dengar</div>' : ''}
                 </div>
               `;
             }).join('')}

@@ -584,19 +584,25 @@ export function createMonsterSVG(letter, options = {}) {
   }
 
   return `
-    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" class="monster-svg monster-${char} state-${state}">
+    <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" class="monster-svg monster-${char} state-${state} die-cut-sticker-svg">
       <defs>
         <radialGradient id="grad-${char}" cx="35%" cy="30%" r="70%">
           <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.35" />
-          <stop offset="60%" stop-color="${profile.bg}" />
-          <stop offset="100%" stop-color="${profile.bg}" filter="brightness(0.85)" />
+          <stop offset="65%" stop-color="${profile.bg}" />
+          <stop offset="100%" stop-color="${profile.bg}" />
         </radialGradient>
-        <filter id="monster-shadow" x="-15%" y="-15%" width="130%" height="135%">
-          <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#000000" flood-opacity="0.2" />
+        <filter id="monster-sticker-shadow" x="-20%" y="-20%" width="140%" height="145%">
+          <feDropShadow dx="1.5" dy="3.5" stdDeviation="2.5" flood-color="#282A3A" flood-opacity="0.22" />
         </filter>
       </defs>
 
       ${celebrationStars}
+
+      <!-- Die-Cut White Sticker Base Layer (Physical Sticker Contour) -->
+      <g class="sticker-diecut-white-base" stroke="#FFFFFF" stroke-width="12" stroke-linejoin="round" stroke-linecap="round" fill="#FFFFFF">
+        ${spec.feet ? spec.feet.map(f => `<ellipse cx="${f.cx}" cy="${f.cy}" rx="9" ry="5.5" />`).join('') : ''}
+        <path d="${spec.path}" fill-rule="${spec.fillRule || 'nonzero'}" />
+      </g>
 
       <!-- Monster Accessories Behind Body -->
       ${accessoriesMarkup}
@@ -604,15 +610,15 @@ export function createMonsterSVG(letter, options = {}) {
       <!-- Feet (behind or under body) -->
       ${feetMarkup}
 
-      <!-- Letter Monster Body (The letter itself!) -->
+      <!-- Letter Monster Body (Hand-Drawn Papercraft Doodle Letter) -->
       <path d="${spec.path}" 
             fill="url(#grad-${char})" 
             fill-rule="${spec.fillRule || 'nonzero'}"
-            stroke="#2D3142" 
+            stroke="#282A3A" 
             stroke-width="4.5" 
             stroke-linejoin="round" 
             stroke-linecap="round"
-            filter="url(#monster-shadow)" 
+            filter="url(#monster-sticker-shadow)" 
             class="monster-body" />
 
       <!-- Texture / Spots -->
@@ -635,11 +641,11 @@ export function createMonsterSVG(letter, options = {}) {
 }
 
 /**
- * Creates a DOM element for a letter monster
+ * Creates a DOM element for a letter monster (Papercraft Sticker Card)
  */
 export function createMonsterElement(letter, state = 'idle') {
   const container = document.createElement('div');
-  container.className = `monster-letter-card letter-${letter.toUpperCase()}`;
+  container.className = `monster-letter-card paper-cutout-card sticker-item letter-${letter.toUpperCase()}`;
   container.setAttribute('data-letter', letter.toUpperCase());
   container.setAttribute('role', 'button');
   container.setAttribute('aria-label', `Huruf Monster ${letter.toUpperCase()}`);
