@@ -300,84 +300,30 @@ body::after {
   box-shadow: var(--shadow-paper-active);
 }
 
-/* ==========================================================
-   MISSION CLUE ROW (REAL ILLUSTRATION & STICKY HINT)
-   ========================================================== */
-
-.mission-clue-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-  margin-bottom: 1.25rem;
-  flex-wrap: wrap;
-  width: 100%;
-}
-
-.mission-photo-card {
-  position: relative;
-  width: 110px;
-  height: 110px;
-  background: #FFFFFF;
-  border: 3.5px solid var(--color-marker);
-  border-radius: 255px 15px 225px 15px / 15px 225px 15px 255px;
-  box-shadow: 3px 4px 0px var(--color-marker);
-  padding: 6px;
-  cursor: pointer;
-  transform: rotate(-2deg);
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.mission-photo-card:hover {
-  transform: rotate(1deg) scale(1.08) translateY(-3px);
-  box-shadow: 4px 6px 0px var(--color-marker);
-}
-
-.mission-photo-card:active {
-  transform: scale(0.96) translate(1px, 2px);
-  box-shadow: 1px 1px 0px var(--color-marker);
-}
-
-.mission-word-img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 12px;
-  display: block;
-}
-
-.photo-sound-badge {
-  position: absolute;
-  bottom: -6px;
-  right: -6px;
-  background: var(--color-lemon);
-  border: 2px solid var(--color-marker);
-  border-radius: 50%;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  box-shadow: 1px 2px 0px var(--color-marker);
-}
-
-/* Post-it / Sticky note hint */
+/* Playful Post-it / Sticky note hint */
 .mission-hint-box {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.6rem;
   background: var(--paper-postit);
   border: 2.5px solid var(--color-marker);
   border-radius: var(--radius-btn);
-  padding: 0.7rem 1.3rem;
-  transform: rotate(1deg);
+  padding: 0.6rem 1.3rem;
+  transform: rotate(-0.5deg);
   box-shadow: 2px 3px 0px rgba(40, 42, 58, 0.18);
-  max-width: 440px;
+  max-width: 520px;
+  margin: 0.2rem auto 1rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.mission-hint-box:hover {
+  transform: rotate(0.5deg) scale(1.03);
+}
+
+.mission-hint-box:active {
+  transform: scale(0.97);
 }
 
 .hint-icon {
@@ -389,6 +335,7 @@ body::after {
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--text-dark);
+  text-align: center;
 }
 
 /* ==========================================================
@@ -400,16 +347,16 @@ body::after {
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1.1rem;
-  margin: 0.4rem 0 0.8rem;
+  gap: clamp(0.4rem, 1.5vw, 0.9rem);
+  margin: 0.3rem 0 0.6rem;
   width: 100%;
 }
 
 .target-letter-slot {
-  width: 92px;
-  height: 100px;
+  width: clamp(48px, 12vw, 84px);
+  height: clamp(56px, 13vw, 92px);
   background: #FAF8F2;
-  border: 3.5px dashed #A0AEC0;
+  border: 3px dashed #A0AEC0;
   border-radius: var(--radius-slot);
   display: flex;
   flex-direction: column;
@@ -422,7 +369,7 @@ body::after {
 
 .slot-placeholder {
   font-family: var(--font-heading);
-  font-size: 2.4rem;
+  font-size: clamp(1.6rem, 4.5vw, 2.3rem);
   font-weight: 700;
   color: #B8C2D4;
   transition: color 0.2s;
@@ -470,12 +417,16 @@ body::after {
 }
 
 /* ==========================================================
-   MONSTER LETTER TRAY (DESK MAT / PAPERCRAFT TRAY)
+   MONSTER LETTER PLAY DESK (SCATTERED & FREE DRAG)
    ========================================================== */
 
 .tray-wrapper {
   width: 100%;
-  margin-top: 0.8rem;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 0.6rem;
+  min-height: 290px;
 }
 
 .tray-title-bar {
@@ -483,32 +434,35 @@ body::after {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  margin-bottom: 0.6rem;
+  margin-bottom: 0.5rem;
 }
 
 .doodle-tray-hint {
   font-family: var(--font-heading);
-  font-size: 1.1rem;
+  font-size: clamp(0.95rem, 3vw, 1.15rem);
   font-weight: 700;
   color: #555E70;
-  background: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.75);
   border: 2px dashed rgba(40, 42, 58, 0.25);
   border-radius: var(--radius-badge);
   padding: 0.25rem 0.9rem;
+  text-align: center;
 }
 
-.monster-tray {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 1.2rem;
-  min-height: 124px;
+.monster-tray.scatter-play-desk {
+  position: relative;
+  width: 100%;
+  flex: 1;
+  min-height: 290px;
   background: var(--paper-tray);
   border: 3.5px solid var(--color-marker);
   border-radius: 20px 255px 20px 245px / 245px 20px 255px 20px;
-  padding: 1.25rem;
   box-shadow: var(--shadow-paper-tray);
+  overflow: hidden;
+  touch-action: none; /* Crucial for tablets and phones: prevents accidental scroll while dragging */
+  background-image: 
+    radial-gradient(ellipse at 50% 50%, rgba(255, 255, 255, 0.4) 0%, rgba(230, 218, 195, 0.2) 100%),
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(40, 42, 58, 0.02) 35px, rgba(40, 42, 58, 0.02) 36px);
 }
 
 /* ==========================================================
@@ -516,31 +470,18 @@ body::after {
    ========================================================== */
 
 .monster-letter-card {
-  width: 90px;
-  height: 98px;
+  position: absolute;
+  width: clamp(66px, 15vw, 86px);
+  height: clamp(74px, 16vw, 94px);
   cursor: grab;
-  position: relative;
   touch-action: none;
   transition: transform 0.15s ease, filter 0.15s ease;
   filter: drop-shadow(2px 3px 0px rgba(40, 42, 58, 0.7));
-}
-
-/* Playful alternating resting tilts to simulate hand-placed paper cutouts on a desk */
-.monster-letter-card:nth-child(4n+1) {
-  transform: rotate(-2deg);
-}
-.monster-letter-card:nth-child(4n+2) {
-  transform: rotate(2.5deg);
-}
-.monster-letter-card:nth-child(4n+3) {
-  transform: rotate(-1.5deg);
-}
-.monster-letter-card:nth-child(4n) {
-  transform: rotate(1.8deg);
+  will-change: left, top, transform;
 }
 
 .monster-letter-card:hover {
-  transform: translateY(-4px) scale(1.06);
+  transform: scale(1.08);
   filter: drop-shadow(3px 6px 0px rgba(40, 42, 58, 0.85));
 }
 
@@ -548,14 +489,13 @@ body::after {
   cursor: grabbing;
 }
 
-/* During drag: original element on tray turns faint */
+/* During drag: original element is hidden while ghost tracks finger */
 .monster-letter-card.is-being-dragged {
-  opacity: 0.25;
-  transform: scale(0.92);
+  opacity: 0.2;
 }
 
 .monster-letter-card.is-placed {
-  display: none;
+  display: none !important;
 }
 
 /* LIFTED PAPER PHYSICS (Drag Ghost) */
@@ -1214,40 +1154,73 @@ body::after {
    RESPONSIVE OPTIMIZATION (TABLETS & MOBILE)
    ========================================================== */
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .app-header {
-    padding: 0.75rem 1rem;
+    padding: 0.6rem 0.9rem;
   }
   .brand-title {
-    font-size: 1.3rem;
+    font-size: 1.25rem;
   }
   .brand-subtitle {
     display: none;
   }
   .btn-icon-pill {
-    padding: 0.5rem 0.85rem;
-    min-height: 44px;
+    padding: 0.45rem 0.8rem;
+    min-height: 42px;
     font-size: 0.95rem;
   }
-  .target-letter-slot {
-    width: 72px;
-    height: 80px;
+  .game-arena {
+    padding: 0.5rem 0.75rem 0.75rem;
   }
-  .slot-placeholder {
-    font-size: 1.9rem;
+  .word-mission-card {
+    padding: 1rem 1rem 0.85rem;
+    margin-bottom: 0.75rem;
   }
-  .monster-letter-card {
-    width: 72px;
-    height: 80px;
+  .monster-tray.scatter-play-desk {
+    min-height: 310px;
+  }
+  .theater-modal {
+    max-width: 94vw;
   }
   .theater-stage {
-    height: 180px;
+    min-height: 180px;
+    height: 190px;
+  }
+  .theater-real-illustration {
+    max-height: 150px;
+    max-width: 190px;
   }
   .theater-word-text {
-    font-size: 2.2rem;
+    font-size: 2.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .app-header {
+    padding: 0.5rem 0.75rem;
+  }
+  .btn-icon-pill .control-label {
+    display: none; /* Icon-only on very narrow mobile screens */
+  }
+  .btn-icon-pill {
+    padding: 0.4rem 0.65rem;
+    min-height: 40px;
   }
   .nav-arrow-btn {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
+    font-size: 1.15rem;
+  }
+  .mission-hint-box {
+    padding: 0.45rem 0.9rem;
+    font-size: 0.92rem;
+  }
+  .monster-tray.scatter-play-desk {
+    min-height: 290px;
+  }
+  .sticker-grid {
+    grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
+    gap: 0.85rem;
+    padding: 1rem;
   }
 }

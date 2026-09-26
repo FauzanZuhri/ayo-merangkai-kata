@@ -52,16 +52,10 @@
         </div>
       </div>
 
-      <!-- Playful Clue Row: Word Illustration Card + Sticky Note Hint -->
-      <div class="mission-clue-row">
-        <div class="mission-photo-card" id="mission-photo-card" title="Sentuh untuk dengarkan bunyi kata!">
-          <img id="mission-word-img" class="mission-word-img" src="/images/words/kucing.jpg" alt="Ilustrasi Kata">
-          <span class="photo-sound-badge" aria-hidden="true">🔊</span>
-        </div>
-        <div class="mission-hint-box">
-          <span class="hint-icon" aria-hidden="true">💡</span>
-          <span class="hint-text" id="mission-hint">Hewan berbulu yang suka mengeong</span>
-        </div>
+      <!-- Playful Clue / Hint Box (Yellow Sticky Post-it Note) -->
+      <div class="mission-hint-box">
+        <span class="hint-icon" aria-hidden="true">💡</span>
+        <span class="hint-text" id="mission-hint">Hewan berbulu yang suka mengeong</span>
       </div>
 
       <!-- Target Slots (Where letter paper cutouts snap into place) -->
@@ -70,13 +64,13 @@
       </div>
     </section>
 
-    <!-- Monster Letters Tray (Desk Mat / Paper Cutouts Tray) -->
-    <section class="tray-wrapper" aria-label="Kotak Huruf Monster">
+    <!-- Monster Letters Play Desk (Free to Drag & Scattered Papercut Area) -->
+    <section class="tray-wrapper" aria-label="Meja Bermain Huruf">
       <div class="tray-title-bar">
-        <span class="doodle-tray-hint">✂️ Pasang Huruf Kertas ke Kotak di Atas</span>
+        <span class="doodle-tray-hint">🖐️ Huruf berserakan di meja, geser bebas ke kotak di atas!</span>
       </div>
-      <div class="monster-tray" id="monster-tray" role="region" aria-label="Pilihan Huruf Monster">
-        <!-- Dynamically injected draggable monster letter elements -->
+      <div class="monster-tray scatter-play-desk" id="monster-tray" role="region" aria-label="Meja Bermain Huruf Bebas">
+        <!-- Dynamically injected scattered draggable monster letter elements -->
       </div>
     </section>
   </main>

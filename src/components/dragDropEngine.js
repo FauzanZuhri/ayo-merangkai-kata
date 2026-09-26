@@ -21,10 +21,57 @@ export class DragDropEngine {
     this.velocityX = 0;
     this.isDragging = false;
     this.pickupAngle = 0;
+    this.topZIndex = 30;
   }
 
   setTargetSlots(slots) {
     this.targetSlots = slots;
+  }
+
+  /**
+   * Scatters letter cards organically across the play desk
+   * Training children's spatial and motor skills
+   */
+  scatterLetters() {
+    if (!this.trayEl) return;
+    const cards = Array.from(this.trayEl.querySelectorAll('.monster-letter-card:not(.is-placed)'));
+    if (cards.length === 0) return;
+
+    const rect = this.trayEl.getBoundingClientRect();
+    const deskW = rect.width > 0 ? rect.width : (this.trayEl.clientWidth || 360);
+    const deskH = rect.height > 0 ? rect.height : (this.trayEl.clientHeight || 280);
+
+    const cardW = Math.min(84, Math.max(64, deskW * 0.18));
+    const cardH = cardW * 1.1;
+    const pad = 12;
+
+    const usableW = Math.max(60, deskW - cardW - pad * 2);
+    const usableH = Math.max(60, deskH - cardH - pad * 2);
+
+    const n = cards.length;
+    // Divide into sectors with organic jitter so letters don't completely overlap
+    const cols = Math.max(2, Math.min(n, Math.floor(deskW / (cardW + 16))));
+    const rows = Math.ceil(n / cols);
+    const cellW = usableW / cols;
+    const cellH = usableH / rows;
+
+    cards.forEach((card, idx) => {
+      const col = idx % cols;
+      const row = Math.floor(idx / cols);
+
+      const jitterX = (Math.random() - 0.5) * (cellW * 0.4);
+      const jitterY = (Math.random() - 0.5) * (cellH * 0.4);
+      const posX = Math.max(pad, Math.min(deskW - cardW - pad, pad + col * cellW + jitterX + 8));
+      const posY = Math.max(pad, Math.min(deskH - cardH - pad, pad + row * cellH + jitterY + 8));
+      const randomRot = (Math.random() - 0.5) * 26; // -13deg to +13deg
+
+      card.style.position = 'absolute';
+      card.style.left = `${posX}px`;
+      card.style.top = `${posY}px`;
+      card.style.transform = `rotate(${randomRot}deg) scale(1)`;
+      card.style.zIndex = `${10 + idx}`;
+      card.style.visibility = 'visible';
+    });
   }
 
   attachMonster(monsterEl, letter) {
@@ -44,6 +91,10 @@ export class DragDropEngine {
       this.activeMonsterEl = monsterEl;
       monsterEl.setPointerCapture(e.pointerId);
 
+      // Bring to top
+      this.topZIndex = (this.topZIndex || 30) + 1;
+      monsterEl.style.zIndex = this.topZIndex;
+
       this.originRect = monsterEl.getBoundingClientRect();
       this.prevX = e.clientX;
       this.prevY = e.clientY;
@@ -51,12 +102,13 @@ export class DragDropEngine {
       // Start looping phonics chant!
       audioEngine.startPhonicsChant(letter);
 
-      // Generate a slight random rotation to simulate physical paper being picked up by hand (-5deg to +5deg)
-      this.pickupAngle = (Math.random() - 0.5) * 10;
+      // Generate a slight random rotation to simulate physical paper being picked up by hand (-6deg to +6deg)
+      this.pickupAngle = (Math.random() - 0.5) * 12;
 
       // Create animated floating drag ghost with paper-lifted physics
       this.createDragGhost(letter, e.clientX, e.clientY, this.pickupAngle);
       monsterEl.classList.add('is-being-dragged', 'paper-lifted');
+      monsterEl.style.visibility = 'hidden'; // Hide original while ghost tracks finger
 
       const onPointerMove = (moveEvt) => {
         if (!this.isDragging || moveEvt.pointerId !== this.activePointerId) return;
@@ -67,13 +119,13 @@ export class DragDropEngine {
         this.prevX = moveEvt.clientX;
         this.prevY = moveEvt.clientY;
 
-        const dynamicTilt = Math.max(-14, Math.min(14, this.velocityX * 1.2));
+        const dynamicTilt = Math.max(-15, Math.min(15, this.velocityX * 1.3));
         const totalTilt = this.pickupAngle + dynamicTilt;
 
         if (this.dragGhost) {
           this.dragGhost.style.left = `${moveEvt.clientX}px`;
           this.dragGhost.style.top = `${moveEvt.clientY}px`;
-          this.dragGhost.style.transform = `translate(-50%, -50%) scale(1.1) rotate(${totalTilt}deg)`;
+          this.dragGhost.style.transform = `translate(-50%, -50%) scale(1.15) rotate(${totalTilt}deg)`;
         }
 
         this.checkSlotProximity(moveEvt.clientX, moveEvt.clientY, letter);
@@ -109,9 +161,9 @@ export class DragDropEngine {
     ghost.style.position = 'fixed';
     ghost.style.left = `${x}px`;
     ghost.style.top = `${y}px`;
-    ghost.style.transform = `translate(-50%, -50%) scale(1.1) rotate(${initialAngle}deg)`;
-    ghost.style.width = '104px';
-    ghost.style.height = '104px';
+    ghost.style.transform = `translate(-50%, -50%) scale(1.15) rotate(${initialAngle}deg)`;
+    ghost.style.width = '96px';
+    ghost.style.height = '96px';
     ghost.style.pointerEvents = 'none';
     ghost.style.zIndex = '9999';
     ghost.innerHTML = createMonsterSVG(letter, { state: 'dragging' });
@@ -179,7 +231,7 @@ export class DragDropEngine {
           targetSlot.el.classList.add('slot-filled', 'paper-stuck');
           targetSlot.filledMonsterEl = monsterEl;
 
-          // Hide original tray monster
+          // Mark placed
           monsterEl.classList.add('is-placed');
           monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
           monsterEl.style.visibility = 'hidden';
@@ -193,25 +245,45 @@ export class DragDropEngine {
         }, 200);
       }
     } else {
-      // MISSED OR WRONG SLOT: Gentle paper return to tray, sticking flat back to desk
+      // FREE TO DRAG ANYWHERE!
+      // Letter lands right where the child dropped it on the play table (melatih motorik anak)
       audioEngine.playDropReturn();
 
-      if (this.dragGhost && this.originRect) {
-        const returnX = this.originRect.left + this.originRect.width / 2;
-        const returnY = this.originRect.top + this.originRect.height / 2;
+      const trayRect = this.trayEl.getBoundingClientRect();
+      const cardW = monsterEl.offsetWidth || 76;
+      const cardH = monsterEl.offsetHeight || 84;
 
+      let newX = clientX - trayRect.left - cardW / 2;
+      let newY = clientY - trayRect.top - cardH / 2;
+
+      // Clamp so the letter never gets lost off-screen
+      newX = Math.max(10, Math.min(trayRect.width - cardW - 10, newX));
+      newY = Math.max(10, Math.min(trayRect.height - cardH - 10, newY));
+      const dropRot = (Math.random() - 0.5) * 24; // natural resting paper angle
+
+      if (this.dragGhost) {
         this.dragGhost.classList.remove('paper-drag-lifted', 'paper-lifted');
-        this.dragGhost.style.transition = 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        this.dragGhost.style.left = `${returnX}px`;
-        this.dragGhost.style.top = `${returnY}px`;
-        this.dragGhost.style.transform = 'translate(-50%, -50%) scale(1) rotate(0deg)';
+        this.dragGhost.style.transition = 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        this.dragGhost.style.left = `${trayRect.left + newX + cardW / 2}px`;
+        this.dragGhost.style.top = `${trayRect.top + newY + cardH / 2}px`;
+        this.dragGhost.style.transform = `translate(-50%, -50%) scale(1) rotate(${dropRot}deg)`;
 
         setTimeout(() => {
           if (this.dragGhost) this.dragGhost.remove();
           this.dragGhost = null;
+          monsterEl.style.position = 'absolute';
+          monsterEl.style.left = `${newX}px`;
+          monsterEl.style.top = `${newY}px`;
+          monsterEl.style.transform = `rotate(${dropRot}deg) scale(1)`;
+          monsterEl.style.visibility = 'visible';
           monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
-        }, 300);
+        }, 180);
       } else {
+        monsterEl.style.position = 'absolute';
+        monsterEl.style.left = `${newX}px`;
+        monsterEl.style.top = `${newY}px`;
+        monsterEl.style.transform = `rotate(${dropRot}deg) scale(1)`;
+        monsterEl.style.visibility = 'visible';
         monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
       }
     }

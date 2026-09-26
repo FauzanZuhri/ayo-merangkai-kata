@@ -25,8 +25,7 @@ class MonsterPhonicsApp {
   initDOM() {
     this.categoryBadgeEl = document.getElementById('mission-category');
     this.hintTextEl = document.getElementById('mission-hint');
-    this.wordImgEl = document.getElementById('mission-word-img');
-    this.photoCardEl = document.getElementById('mission-photo-card');
+    this.hintBoxEl = document.querySelector('.mission-hint-box');
     this.targetFrameEl = document.getElementById('target-word-frame');
     this.trayEl = document.getElementById('monster-tray');
     this.btnPrevWord = document.getElementById('btn-prev-word');
@@ -74,9 +73,11 @@ class MonsterPhonicsApp {
       this.nextWord();
     });
 
-    // Touch Word Picture Card to pronounce the word
-    if (this.photoCardEl) {
-      this.photoCardEl.addEventListener('click', () => {
+    // Touch Hint Box to listen to phonics/word audio
+    if (this.hintBoxEl) {
+      this.hintBoxEl.style.cursor = 'pointer';
+      this.hintBoxEl.setAttribute('title', 'Sentuh untuk dengarkan bunyi kata!');
+      this.hintBoxEl.addEventListener('click', () => {
         audioEngine.playGrab();
         if (this.currentWordData) {
           audioEngine.speakWordSequence(this.currentWordData);
@@ -88,6 +89,15 @@ class MonsterPhonicsApp {
     this.btnStickers.addEventListener('click', () => {
       audioEngine.playGrab();
       this.stickerBook.show();
+    });
+
+    // Re-scatter on window resize / mobile device orientation change
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        this.dragDropEngine.scatterLetters();
+      }, 150);
     });
 
     // First user gesture audio context unlock
@@ -105,13 +115,9 @@ class MonsterPhonicsApp {
     const wordData = WORDS_DATABASE[this.currentWordIndex];
     this.currentWordData = wordData;
 
-    // Update Header, Hint & Real Illustration
+    // Update Header & Hint (Image will only appear in the celebration modal & sticker album!)
     this.categoryBadgeEl.textContent = wordData.category;
     this.hintTextEl.textContent = wordData.hint;
-    if (this.wordImgEl && wordData.image) {
-      this.wordImgEl.src = wordData.image;
-      this.wordImgEl.alt = `Gambar ${wordData.word}`;
-    }
 
     // Clear Target Frame & Tray
     this.targetFrameEl.innerHTML = '';
@@ -158,6 +164,11 @@ class MonsterPhonicsApp {
       // Attach Drag & Drop with Phonics chanting
       this.dragDropEngine.attachMonster(monsterCard, item.char);
     });
+
+    // Scatter letters organically across the play table (melatih motorik anak)
+    setTimeout(() => {
+      this.dragDropEngine.scatterLetters();
+    }, 60);
   }
 
   nextWord() {
