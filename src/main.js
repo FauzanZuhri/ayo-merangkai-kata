@@ -25,6 +25,8 @@ class MonsterPhonicsApp {
   initDOM() {
     this.categoryBadgeEl = document.getElementById('mission-category');
     this.hintTextEl = document.getElementById('mission-hint');
+    this.wordImgEl = document.getElementById('mission-word-img');
+    this.photoCardEl = document.getElementById('mission-photo-card');
     this.targetFrameEl = document.getElementById('target-word-frame');
     this.trayEl = document.getElementById('monster-tray');
     this.btnPrevWord = document.getElementById('btn-prev-word');
@@ -72,6 +74,16 @@ class MonsterPhonicsApp {
       this.nextWord();
     });
 
+    // Touch Word Picture Card to pronounce the word
+    if (this.photoCardEl) {
+      this.photoCardEl.addEventListener('click', () => {
+        audioEngine.playGrab();
+        if (this.currentWordData) {
+          audioEngine.speakWordSequence(this.currentWordData);
+        }
+      });
+    }
+
     // Open Sticker Book
     this.btnStickers.addEventListener('click', () => {
       audioEngine.playGrab();
@@ -93,9 +105,13 @@ class MonsterPhonicsApp {
     const wordData = WORDS_DATABASE[this.currentWordIndex];
     this.currentWordData = wordData;
 
-    // Update Header & Hint
+    // Update Header, Hint & Real Illustration
     this.categoryBadgeEl.textContent = wordData.category;
     this.hintTextEl.textContent = wordData.hint;
+    if (this.wordImgEl && wordData.image) {
+      this.wordImgEl.src = wordData.image;
+      this.wordImgEl.alt = `Gambar ${wordData.word}`;
+    }
 
     // Clear Target Frame & Tray
     this.targetFrameEl.innerHTML = '';

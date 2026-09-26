@@ -25,9 +25,12 @@ export class VignetteTheater {
             <span class="theater-super-title">🎉 Hore! Kata Berhasil Disusun! 🎉</span>
           </div>
 
-          <!-- Animated Cartoon Stage -->
+          <!-- Animated Real Illustration Stage -->
           <div class="theater-stage" style="background: ${wordData.vignette?.bgColor || '#FFE5EC'}">
-            ${this.getVignetteSVG(wordData)}
+            <div class="theater-illustration-showcase">
+              <img src="${wordData.image}" alt="${wordData.word}" class="theater-real-illustration animate-pop-in">
+              <div class="theater-sparkle-decor" aria-hidden="true">✨</div>
+            </div>
           </div>
 
           <!-- Word Display with Syllables -->

@@ -81,7 +81,7 @@ export class StickerBook {
                      aria-label="${isUnlocked ? item.word : 'Kata Rahasia'}">
                   <div class="sticker-badge ${isUnlocked ? 'sticker-badge-unlocked' : ''}">
                     ${isUnlocked
-                      ? `<div class="sticker-icon">${item.category.split(' ')[0]}</div>
+                      ? `<img src="${item.image}" alt="${item.word}" class="sticker-real-img">
                          <div class="sticker-star">⭐</div>`
                       : `<div class="sticker-locked-icon">🔒</div>`}
                   </div>
