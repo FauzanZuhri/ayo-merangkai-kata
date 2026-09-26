@@ -44,43 +44,41 @@ public/
 ### A. Stiker Kosakata Die-Cut Transparan (`public/images/words/`)
 > **Spesifikasi:** Format `PNG` / `WebP` transparan, resolusi `512 x 512 px`, rasio `1:1`, wajib memiliki garis batas putih tebal (*die-cut contour*).
 
-| ID Kata | Nama Kata | Kategori | Deskripsi Visual Karakter | Status Saat Ini | Rencana Upgrade |
+| ID Kata | Nama Kata | Kategori | Deskripsi Visual Karakter | Status Saat Ini | Format File |
 |---|---|---|---|---|---|
-| `kucing` | KUCING | 🐱 Hewan | Kucing oranye manis bermain bola benang | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `apel` | APEL | 🍎 Buah | Apel merah segar mengkilap dengan daun hijau | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `bola` | BOLA | ⚽ Benda | Bola sepak kartun dengan garis motif ceria | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `ikan` | IKAN | 🐟 Hewan | Ikan badut/laut mungil berenang dengan gelembung | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `mobil` | MOBIL | 🚗 Benda | Mobil kuning kartun lucu dengan roda membal | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `buku` | BUKU | 📚 Benda | Buku cerita dongeng terbuka dengan bintang emas | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `singa` | SINGA | 🦁 Hewan | Singa mungil berbulu lebat yang tersenyum ramah | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `bintang` | BINTANG | ⭐ Alam | Bintang kuning berkelip dengan wajah imut | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `roti` | ROTI | 🍞 Makanan | Roti tawar panggang empuk dengan mentega meleleh | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `bebek` | BEBEK | 🦆 Hewan | Bebek kuning riang berenang di air | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `topi` | TOPI | 👒 Benda | Topi jerami pesta warna-warni berpita | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
-| `awan` | AWAN | ☁️ Alam | Awan putih lembut tersenyum dengan rintik pelangi | JPG (Kotak) | 🔄 Ubah ke PNG Transparan Die-Cut |
+| `kucing` | KUCING | 🐱 Hewan | Kucing oranye manis bermain bola benang | ✅ Aktif | PNG Transparan Die-Cut |
+| `apel` | APEL | 🍎 Buah | Apel merah segar mengkilap dengan daun hijau | ✅ Aktif | PNG Transparan Die-Cut |
+| `bola` | BOLA | ⚽ Benda | Bola sepak kartun dengan garis motif ceria | ✅ Aktif | PNG Transparan Die-Cut |
+| `ikan` | IKAN | 🐟 Hewan | Ikan badut/laut mungil berenang dengan gelembung | ✅ Aktif | PNG Transparan Die-Cut |
+| `mobil` | MOBIL | 🚗 Benda | Mobil kuning kartun lucu dengan roda membal | ✅ Aktif | PNG Transparan Die-Cut |
+| `buku` | BUKU | 📚 Benda | Buku cerita dongeng terbuka dengan bintang emas | ✅ Aktif | PNG Transparan Die-Cut |
+| `singa` | SINGA | 🦁 Hewan | Singa mungil berbulu lebat yang tersenyum ramah | ✅ Aktif | PNG Transparan Die-Cut |
+| `bintang` | BINTANG | ⭐ Alam | Bintang kuning berkelip dengan wajah imut | ✅ Aktif | PNG Transparan Die-Cut |
+| `roti` | ROTI | 🍞 Makanan | Roti tawar panggang empuk dengan mentega meleleh | ✅ Aktif | PNG Transparan Die-Cut |
+| `bebek` | BEBEK | 🦆 Hewan | Bebek kuning riang berenang di air | ✅ Aktif | PNG Transparan Die-Cut |
+| `topi` | TOPI | 👒 Benda | Topi jerami pesta warna-warni berpita | ✅ Aktif | PNG Transparan Die-Cut |
+| `awan` | AWAN | ☁️ Alam | Awan putih lembut tersenyum dengan rintik pelangi | ✅ Aktif | PNG Transparan Die-Cut |
+| `bunga` | BUNGA | 🌸 Alam | Bunga kertas kelopak warna-warni mekar ceria tersenyum | ✅ Aktif Baru | PNG Transparan Die-Cut |
+| `kelinci` | KELINCI | 🐰 Hewan | Kelinci manis telinga panjang memegang wortel | ✅ Aktif Baru | PNG Transparan Die-Cut |
+| `kereta` | KERETA | 🚂 Benda | Kereta api lokomotif mainan ceria berasap kapas | ✅ Aktif Baru | PNG Transparan Die-Cut |
+| `kupu` | KUPU | 🦋 Hewan | Kupu-kupu pastel sayap berornamen quilling indah | ✅ Aktif Baru | PNG Transparan Die-Cut |
+| `gajah` | GAJAH | 🐘 Hewan | Gajah kecil berdasi kupu-kupu tersenyum manis | ✅ Aktif Baru | PNG Transparan Die-Cut |
 
-#### 🌟 Kosakata Tambahan untuk Update Mendatang:
-* `gajah` (🐘 GAJAH), `kupu` (🦋 KUPU), `bunga` (🌸 BUNGA), `kereta` (🚂 KERETA), `rumah` (🏠 RUMAH), `sepatu` (👟 SEPATU), `kelinci` (🐰 KELINCI), `pohon` (🌳 POHON).
+#### 🌟 Kosakata Tambahan Selanjutnya:
+* `rumah` (🏠 RUMAH), `sepatu` (👟 SEPATU), `pohon` (🌳 POHON), `kapal` (⛵ KAPAL).
 
 ---
 
 ### B. Latar Belakang & Ornamen Diorama Panorama (`public/images/diorama/`)
-> **Spesifikasi:** Format `WebP` / `PNG`, resolusi total panorama `2400 x 600 px` (atau per zona `600 x 600 px`), gaya *layered papercraft collage*.
+> **Spesifikasi:** Format `WebP` / `JPG`, resolusi total panorama `2200 x 100%`, gaya *authentic layered papercraft collage*.
 
 | Nama Berkas | Zona | Deskripsi Visual | Ukuran Rekomendasi | Status |
 |---|---|---|---|---|
-| `bg_panorama_full.webp` | Seluruh Dunia | Lanskap panorama utuh menyambungkan taman, sungai, kota, dan langit | 2400 × 600 px | ⏳ Perlu Dibuat |
-| `zone_meadow_bg.webp` | 🌳 Padang Rumput | Bukit hijau berlapis kertas sobek, bunga, pohon rindang | 600 × 600 px | ⏳ Perlu Dibuat |
-| `zone_stream_bg.webp` | 🐠 Aliran Sungai | Air biru beriak berlapis, jembatan kayu, tanaman air | 600 × 600 px | ⏳ Perlu Dibuat |
-| `zone_city_bg.webp` | 🚗 Kota & Jalan | Gedung warna pastel, jalan aspal bergaris putih, rumah | 600 × 600 px | ⏳ Perlu Dibuat |
-| `zone_sky_bg.webp` | ☁️ Langit Bintang | Langit senja pastel ungu-biru, awan kapas, bulan, bintang | 600 × 600 px | ⏳ Perlu Dibuat |
-
-#### Ornamen Dekorasi Lepas (*Props* Transparan PNG):
-* `prop_paper_tree.png`: Pohon kertas rimbun dengan buah apel menggantung.
-* `prop_wooden_bridge.png`: Jembatan kayu lengkung melintasi sungai.
-* `prop_paper_house.png`: Rumah kertas bertingkat atap merah ceria.
-* `prop_paper_cloud.png`: Awan gumpalan kertas kapas melayang.
-* `prop_paper_moon.png`: Bulan sabit kuning dengan gantungan bintang.
+| `bg_panorama_full.jpg` | Seluruh Dunia | Lanskap panorama utuh menyambungkan taman, sungai jembatan, desa rumah kertas, dan langit malam bintang | 2200 px panorama | ✅ Aktif di Diorama |
+| `zone_meadow_bg.webp` | 🌳 Padang Rumput | Bukit hijau berlapis kertas sobek, bunga, pohon rindang | 550 × 400 px | Sub-zona terintegrasi di panorama |
+| `zone_stream_bg.webp` | 🐠 Aliran Sungai | Air biru beriak berlapis, jembatan kayu, tanaman air | 550 × 400 px | Sub-zona terintegrasi di panorama |
+| `zone_city_bg.webp` | 🚗 Kota & Jalan | Gedung warna pastel, jalan aspal bergaris putih, rumah | 550 × 400 px | Sub-zona terintegrasi di panorama |
+| `zone_sky_bg.webp` | ☁️ Langit Bintang | Langit senja pastel ungu-biru, awan kapas, bulan, bintang | 550 × 400 px | Sub-zona terintegrasi di panorama |
 
 ---
 
@@ -89,13 +87,12 @@ public/
 
 | Nama Berkas | Penggunaan | Deskripsi | Status |
 |---|---|---|---|
-| `texture_desk_mat.webp` | Meja Bermain Huruf | Tekstur alas meja belajar kayu lembut / kertas tebal | ⏳ Perlu Dibuat |
-| `texture_paper_grid.png` | Lembar Buku Catatan | Garis kotak-kotak buku tulis halus transparan | ⏳ Perlu Dibuat |
+| `texture_desk_mat.jpg` | Meja Bermain Huruf | Tekstur alas meja belajar kayu lembut & kertas kraft tebal bergaris halus | ✅ Aktif di Meja Bermain |
+| `app_logo_papercraft.png` | Header & Splash | Logo judul bertema origami, kertas sobek, krayon dan maskot singa & bintang | ✅ Aktif di Header |
 | `washi_tape_stripes.png` | Hiasan Kartu Target | Potongan selotip washi motif garis-garis pastel | ⏳ Perlu Dibuat |
 | `washi_tape_dots.png` | Hiasan Kartu Foto | Potongan selotip washi motif polkadot kuning | ⏳ Perlu Dibuat |
 | `drawer_wood_pattern.webp`| Laci Stiker Bawah | Tekstur kotak laci kayu mainan tempat stiker | ⏳ Perlu Dibuat |
 | `stamp_star_gold.png` | Stempel Koleksi | Stempel stiker bintang emas timbul | ⏳ Perlu Dibuat |
-| `app_logo_papercraft.png` | Header & Splash | Logo judul bertema origami dan krayon | ⏳ Perlu Dibuat |
 
 ---
 
