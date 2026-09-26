@@ -52,6 +52,10 @@ class MonsterPhonicsApp {
   }
 
   initEngines() {
+    this.stickerBook = new StickerBook({
+      containerEl: this.stickerBookContainerEl
+    });
+
     this.dragDropEngine = new DragDropEngine({
       targetBoardEl: this.targetFrameEl,
       trayEl: this.trayEl,
@@ -60,12 +64,10 @@ class MonsterPhonicsApp {
 
     this.vignetteTheater = new VignetteTheater({
       containerEl: this.theaterContainerEl,
+      stickerBook: this.stickerBook,
       onNextWord: () => this.nextWord(),
+      onOpenStickerBook: () => this.stickerBook.show(),
       onSaveSticker: (id) => this.stickerBook.saveCompletedWord(id)
-    });
-
-    this.stickerBook = new StickerBook({
-      containerEl: this.stickerBookContainerEl
     });
   }
 
