@@ -12,6 +12,11 @@
   <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Patrick+Hand&display=swap" rel="stylesheet">
 
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>✏️</text></svg>">
+  <script>
+    if (window.location.pathname === '/admin' || window.location.pathname === '/admin/' || window.location.hash === '#/admin' || window.location.hash === '#admin') {
+      window.location.replace('/admin.html');
+    }
+  </script>
 </head>
 <body>
 
@@ -34,6 +39,10 @@
         <span class="control-emoji">📒</span>
         <span class="control-label">Buku Stiker</span>
       </button>
+      <a href="/admin" class="btn-icon-pill btn-admin" id="btn-admin-link" aria-label="Studio Rekam Suara & Kelola Kata" title="Kelola Kata & Rekam Suara Ayah/Ibu/Guru">
+        <span class="control-emoji">🎙️</span>
+        <span class="control-label">Rekam Suara</span>
+      </a>
     </div>
   </header>
 

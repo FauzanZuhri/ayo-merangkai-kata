@@ -1,0 +1,756 @@
+/* ==========================================================
+   ADMIN STUDIO & VOICE RECORDER STYLESHEET
+   Papercraft & Doodle Art Theme for Parents & Teachers
+   ========================================================== */
+
+:root {
+  --admin-bg: #F4EFE6;
+  --admin-card: #FFFFFF;
+  --admin-primary: #FF5E7E;
+  --admin-primary-hover: #E04868;
+  --admin-success: #2EC4B6;
+  --admin-accent: #FF9F1C;
+  --admin-dark: #2B2D42;
+  --admin-border: #2B2D42;
+  --admin-radius: 16px;
+  --admin-shadow: 4px 4px 0px rgba(43, 45, 66, 0.9);
+  --admin-shadow-sm: 2px 2px 0px rgba(43, 45, 66, 0.9);
+}
+
+body.admin-body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Patrick Hand', 'Balsamiq Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--admin-bg);
+  background-image: 
+    radial-gradient(#D5CBB9 1.2px, transparent 1.2px),
+    repeating-linear-gradient(0deg, transparent, transparent 31px, rgba(43, 45, 66, 0.05) 31px, rgba(43, 45, 66, 0.05) 32px);
+  background-size: 24px 24px, 100% 32px;
+  color: var(--admin-dark);
+  min-height: 100vh;
+}
+
+/* Header */
+.admin-header {
+  background: #FFFDF9;
+  border-bottom: 3.5px solid var(--admin-border);
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.admin-header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.admin-brand-icon {
+  font-size: 2.2rem;
+  background: #FFE5EC;
+  border: 2.5px solid var(--admin-border);
+  border-radius: 14px;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--admin-shadow-sm);
+  transform: rotate(-3deg);
+}
+
+.admin-title {
+  margin: 0;
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: var(--admin-dark);
+  line-height: 1.2;
+}
+
+.admin-subtitle {
+  font-size: 0.95rem;
+  color: #6C757D;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* Buttons */
+.btn-paper {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.6rem 1.1rem;
+  border: 2.5px solid var(--admin-border);
+  border-radius: var(--admin-radius);
+  box-shadow: var(--admin-shadow-sm);
+  cursor: pointer;
+  background: #FFFFFF;
+  color: var(--admin-dark);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.btn-paper:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: var(--admin-shadow);
+}
+
+.btn-paper:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.btn-paper-primary {
+  background: var(--admin-primary);
+  color: white;
+}
+
+.btn-paper-success {
+  background: var(--admin-success);
+  color: white;
+}
+
+.btn-paper-accent {
+  background: var(--admin-accent);
+  color: white;
+}
+
+/* Main Container */
+.admin-main {
+  max-width: 1200px;
+  margin: 1.5rem auto;
+  padding: 0 1.25rem 3rem;
+}
+
+/* Stats Ribbon */
+.admin-stats-ribbon {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stat-card {
+  background: #FFFFFF;
+  border: 3px solid var(--admin-border);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+  box-shadow: var(--admin-shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: -8px;
+  right: 18px;
+  width: 38px;
+  height: 16px;
+  background: rgba(255, 224, 102, 0.7);
+  border: 1px dashed rgba(43, 45, 66, 0.4);
+  transform: rotate(4deg);
+}
+
+.stat-icon {
+  font-size: 2.2rem;
+  flex-shrink: 0;
+}
+
+.stat-num {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.95rem;
+  color: #6C757D;
+}
+
+/* Toolbar & Filter */
+.admin-toolbar {
+  background: #FFFDF9;
+  border: 3px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 1rem 1.25rem;
+  box-shadow: var(--admin-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.toolbar-left, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.search-input {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.55rem 1rem;
+  border: 2px solid var(--admin-border);
+  border-radius: 12px;
+  background: #FAF8F2;
+  outline: none;
+  min-width: 220px;
+}
+
+.search-input:focus {
+  background: #FFFFFF;
+  border-color: var(--admin-primary);
+}
+
+.filter-select {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.55rem 1rem;
+  border: 2px solid var(--admin-border);
+  border-radius: 12px;
+  background: #FAF8F2;
+  cursor: pointer;
+  outline: none;
+}
+
+/* Words Grid */
+.words-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(330px, 1fr));
+  gap: 1.5rem;
+}
+
+.word-card {
+  background: #FFFFFF;
+  border: 3.5px solid var(--admin-border);
+  border-radius: 18px;
+  box-shadow: var(--admin-shadow);
+  padding: 1.25rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transition: transform 0.15s ease;
+}
+
+.word-card:hover {
+  transform: translateY(-3px);
+}
+
+.word-card-tape {
+  position: absolute;
+  top: -12px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-1deg);
+  width: 90px;
+  height: 22px;
+  background: rgba(255, 235, 153, 0.85);
+  border: 1.5px dashed rgba(43, 45, 66, 0.4);
+}
+
+.word-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.word-main-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.word-avatar {
+  width: 62px;
+  height: 62px;
+  border: 2px solid var(--admin-border);
+  border-radius: 14px;
+  background: #FFF9DB;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  overflow: hidden;
+}
+
+.word-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.word-title-text {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+.word-category-badge {
+  display: inline-block;
+  font-size: 0.82rem;
+  background: #E8F4F8;
+  border: 1.5px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 0.15rem 0.55rem;
+  margin-top: 0.2rem;
+}
+
+.word-details {
+  background: #FAF8F2;
+  border: 2px dashed rgba(43, 45, 66, 0.25);
+  border-radius: 12px;
+  padding: 0.75rem;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.word-hint-row {
+  margin-bottom: 0.35rem;
+  color: #495057;
+}
+
+.word-meaning-row {
+  color: #6C757D;
+  font-size: 0.88rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Audio Status Items */
+.audio-status-box {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.audio-status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border: 2px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 0.45rem 0.75rem;
+  font-size: 0.9rem;
+}
+
+.audio-status-row.has-audio {
+  border-color: var(--admin-success);
+  background: #E6FCF5;
+}
+
+.audio-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-weight: 700;
+}
+
+.status-indicator {
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-dot.active {
+  background: #2EC4B6;
+  box-shadow: 0 0 6px #2EC4B6;
+}
+
+.status-dot.default {
+  background: #A0AEC0;
+}
+
+.audio-mini-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.btn-mini-play {
+  background: white;
+  border: 1.5px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 0.2rem 0.55rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+.btn-mini-delete {
+  background: #FFE3E3;
+  border: 1.5px solid #FA5252;
+  color: #C92A2A;
+  border-radius: 8px;
+  padding: 0.2rem 0.5rem;
+  cursor: pointer;
+  font-size: 0.85rem;
+}
+
+/* Word Card Footer Buttons */
+.word-card-footer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-top: 2px solid #E2E8F0;
+  padding-top: 0.75rem;
+}
+
+.btn-record-card {
+  flex: 1;
+  background: var(--admin-primary);
+  color: white;
+  justify-content: center;
+}
+
+.btn-edit-card, .btn-delete-card {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.95rem;
+}
+
+/* ==========================================================
+   RECORDING STUDIO MODAL
+   ========================================================== */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 45, 66, 0.65);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 1rem;
+}
+
+.modal-backdrop.hidden {
+  display: none !important;
+}
+
+.studio-modal-box {
+  background: #FFFDF9;
+  border: 4px solid var(--admin-border);
+  border-radius: 24px;
+  box-shadow: 8px 10px 0px rgba(43, 45, 66, 0.9);
+  max-width: 580px;
+  width: 100%;
+  padding: 1.5rem;
+  position: relative;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1.25rem;
+  background: white;
+  border: 2px solid var(--admin-border);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  box-shadow: var(--admin-shadow-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-title {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.5rem;
+  margin: 0 0 0.25rem;
+}
+
+.modal-subtitle {
+  color: #6C757D;
+  margin: 0 0 1.25rem;
+  font-size: 1rem;
+}
+
+/* Step / Target Switcher */
+.record-type-tabs {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  background: #F1ECE1;
+  padding: 0.35rem;
+  border-radius: 14px;
+  border: 2px solid var(--admin-border);
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 0.6rem 0.8rem;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  color: var(--admin-dark);
+}
+
+.tab-btn.active {
+  background: #FFFFFF;
+  box-shadow: var(--admin-shadow-sm);
+  border: 2px solid var(--admin-border);
+}
+
+/* Prompt Card */
+.prompt-card {
+  background: #FFF9DB;
+  border: 2.5px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 1rem;
+  margin-bottom: 1.25rem;
+  text-align: center;
+}
+
+.prompt-label {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  color: #856404;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.prompt-phrase {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #212529;
+  margin: 0.3rem 0;
+}
+
+.prompt-hint {
+  font-size: 0.9rem;
+  color: #6C757D;
+}
+
+/* Live Waveform Visualizer & Timer */
+.visualizer-container {
+  background: #2B2D42;
+  border: 3px solid var(--admin-border);
+  border-radius: 18px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+  box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);
+}
+
+.waveform-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 60px;
+  width: 100%;
+}
+
+.waveform-bar {
+  width: 6px;
+  height: 8px;
+  background: #2EC4B6;
+  border-radius: 4px;
+  transition: height 0.08s ease;
+}
+
+.record-timer {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  color: #FFF;
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin-top: 0.5rem;
+}
+
+.record-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #FF6B6B;
+  font-weight: 700;
+  margin-top: 0.2rem;
+}
+
+.pulse-red-dot {
+  width: 10px;
+  height: 10px;
+  background: #FF6B6B;
+  border-radius: 50%;
+  animation: pulse 1s infinite alternate;
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(1.3); opacity: 1; }
+}
+
+/* Studio Actions */
+.studio-actions-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.studio-main-btns {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btn-record-large {
+  flex: 1;
+  padding: 0.85rem;
+  font-size: 1.15rem;
+  justify-content: center;
+}
+
+.file-upload-divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #8E9AAF;
+  font-size: 0.88rem;
+  margin: 0.25rem 0;
+}
+
+.file-upload-divider::before, .file-upload-divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1.5px dashed #CBD5E0;
+}
+
+.file-upload-divider span {
+  padding: 0 0.75rem;
+}
+
+/* Phonics Letter Studio Grid */
+.phonics-letters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  gap: 0.75rem;
+  max-height: 480px;
+  overflow-y: auto;
+  padding: 0.5rem;
+}
+
+.phonics-letter-item {
+  background: #FFFFFF;
+  border: 2.5px solid var(--admin-border);
+  border-radius: 14px;
+  padding: 0.6rem 0.4rem;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: var(--admin-shadow-sm);
+  transition: transform 0.12s ease;
+  position: relative;
+}
+
+.phonics-letter-item:hover {
+  transform: translateY(-2px);
+}
+
+.phonics-letter-item.has-audio {
+  background: #E6FCF5;
+  border-color: var(--admin-success);
+}
+
+.phonics-char {
+  font-family: 'Balsamiq Sans', cursive, sans-serif;
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.phonics-status-badge {
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+  color: #6C757D;
+}
+
+.phonics-letter-item.has-audio .phonics-status-badge {
+  color: #0CA678;
+  font-weight: 700;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .admin-header {
+    padding: 0.75rem 1rem;
+  }
+  .admin-title {
+    font-size: 1.3rem;
+  }
+  .admin-main {
+    padding: 0 0.85rem 2rem;
+  }
+  .words-grid {
+    grid-template-columns: 1fr;
+  }
+  .toolbar-left, .toolbar-right {
+    width: 100%;
+  }
+  .search-input {
+    width: 100%;
+  }
+  .studio-modal-box {
+    padding: 1.1rem;
+    border-radius: 18px;
+  }
+  .studio-main-btns {
+    flex-direction: column;
+  }
+}

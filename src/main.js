@@ -1,6 +1,6 @@
 // Main Application Orchestrator for Monster Phonics
 import './style.css';
-import { WORDS_DATABASE } from './data/words.js';
+import { wordRepository } from './services/wordRepository.js';
 import { audioEngine } from './services/audioEngine.js';
 import { createMonsterElement, createMonsterSVG } from './components/monsterFactory.js';
 import { DragDropEngine } from './components/dragDropEngine.js';
@@ -19,6 +19,11 @@ class MonsterPhonicsApp {
     this.initDOM();
     this.initEngines();
     this.bindGlobalEvents();
+    this.startApp();
+  }
+
+  async startApp() {
+    await wordRepository.init();
     this.loadWord(this.currentWordIndex);
   }
 
@@ -109,10 +114,12 @@ class MonsterPhonicsApp {
   }
 
   loadWord(index) {
-    if (index < 0) index = WORDS_DATABASE.length - 1;
-    if (index >= WORDS_DATABASE.length) index = 0;
+    const words = wordRepository.getWords();
+    if (!words || words.length === 0) return;
+    if (index < 0) index = words.length - 1;
+    if (index >= words.length) index = 0;
     this.currentWordIndex = index;
-    const wordData = WORDS_DATABASE[this.currentWordIndex];
+    const wordData = words[this.currentWordIndex];
     this.currentWordData = wordData;
 
     // Update Header & Hint (Image will only appear in the celebration modal & sticker album!)

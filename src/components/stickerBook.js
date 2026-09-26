@@ -1,7 +1,7 @@
 // Sticker Book (Buku Stiker Koleksi Kata) for Monster Phonics
 // Encouraging child-friendly collection album without pressure
 
-import { WORDS_DATABASE } from '../data/words.js';
+import { wordRepository } from '../services/wordRepository.js';
 import { audioEngine } from '../services/audioEngine.js';
 
 const STORAGE_KEY = 'monster_phonics_completed_words';
@@ -34,8 +34,9 @@ export class StickerBook {
   }
 
   show() {
+    const words = wordRepository.getWords();
     const completedIds = this.getCompletedWordIds();
-    const totalWords = WORDS_DATABASE.length;
+    const totalWords = words.length;
     const completedCount = completedIds.length;
 
     this.containerEl.innerHTML = `
@@ -69,9 +70,12 @@ export class StickerBook {
 
           <!-- Physical Sticker Scrapbook Grid -->
           <div class="sticker-grid">
-            ${WORDS_DATABASE.map((item, idx) => {
+            ${words.map((item, idx) => {
               const isUnlocked = completedIds.includes(item.id);
               const rotationAngle = (idx % 5 - 2) * 2; // subtle -4deg to +4deg organic tilt
+              const imageContent = item.image
+                ? `<img src="${item.image}" alt="${item.word}" class="sticker-real-img">`
+                : `<span style="font-size: 2.2rem;">🎨</span>`;
               return `
                 <div class="sticker-card ${isUnlocked ? 'is-unlocked die-cut-sticker' : 'is-locked'}"
                      data-id="${item.id}"
@@ -81,7 +85,7 @@ export class StickerBook {
                      aria-label="${isUnlocked ? item.word : 'Kata Rahasia'}">
                   <div class="sticker-badge ${isUnlocked ? 'sticker-badge-unlocked' : ''}">
                     ${isUnlocked
-                      ? `<img src="${item.image}" alt="${item.word}" class="sticker-real-img">
+                      ? `${imageContent}
                          <div class="sticker-star">⭐</div>`
                       : `<div class="sticker-locked-icon">🔒</div>`}
                   </div>
@@ -113,7 +117,7 @@ export class StickerBook {
     cards.forEach(card => {
       card.addEventListener('click', () => {
         const id = card.getAttribute('data-id');
-        const wordData = WORDS_DATABASE.find(w => w.id === id);
+        const wordData = words.find(w => w.id === id);
         if (wordData) {
           audioEngine.playGrab();
           audioEngine.speakWordSequence(wordData);

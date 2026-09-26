@@ -210,6 +210,16 @@ body::after {
   border-color: var(--color-marker);
 }
 
+.btn-icon-pill.btn-admin {
+  background: #FFE5EC;
+  border-color: var(--color-marker);
+  text-decoration: none;
+}
+
+.btn-icon-pill.btn-admin:hover {
+  background: #FFD1DC;
+}
+
 /* ==========================================================
    MAIN GAME ARENA
    ========================================================== */
