@@ -39,10 +39,6 @@
         <span class="control-emoji">📒</span>
         <span class="control-label">Buku Stiker</span>
       </button>
-      <a href="/admin" class="btn-icon-pill btn-admin" id="btn-admin-link" aria-label="Studio Rekam Suara & Kelola Kata" title="Kelola Kata & Rekam Suara Ayah/Ibu/Guru">
-        <span class="control-emoji">🎙️</span>
-        <span class="control-label">Rekam Suara</span>
-      </a>
     </div>
   </header>
 
@@ -89,6 +85,32 @@
 
   <!-- Sticker Book Modal -->
   <div id="sticker-book-container" class="hidden" aria-live="polite"></div>
+
+  <!-- Secret Parental Gate Modal (Hanya untuk Orang Tua & Guru) -->
+  <div id="parental-gate-modal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 400px; text-align: center; border-radius: 20px;">
+      <button class="modal-close-btn" id="btn-close-parental-gate" aria-label="Tutup">✕</button>
+      <div style="font-size: 2.6rem; margin-bottom: 0.2rem;">🔒</div>
+      <h2 class="modal-title" style="font-size: 1.35rem; margin-bottom: 0.35rem;">Zona Orang Tua / Guru</h2>
+      <p class="modal-subtitle" style="font-size: 0.92rem; margin-bottom: 0.9rem;">
+        Pintu rahasia ke Studio Rekam Suara & Kelola Kata. Jawab pertanyaan berikut:
+      </p>
+
+      <div style="background: #FFF9DB; border: 2.5px dashed #2B2D42; border-radius: 14px; padding: 0.75rem; margin-bottom: 1rem;">
+        <div style="font-size: 0.8rem; font-weight: 700; color: #856404; text-transform: uppercase;">Pertanyaan Orang Tua:</div>
+        <div id="parental-challenge-text" style="font-family: 'Balsamiq Sans', cursive, sans-serif; font-size: 1.6rem; font-weight: 700; margin-top: 0.2rem;">3 + 5 = ?</div>
+      </div>
+
+      <form id="parental-gate-form" style="display: flex; flex-direction: column; gap: 0.75rem;">
+        <input type="text" id="parental-gate-input" class="search-input" style="text-align: center; font-size: 1.4rem; font-weight: 700; letter-spacing: 2px;" placeholder="Jawaban atau PIN" autocomplete="off" required>
+        <button type="submit" class="btn-paper btn-paper-primary" style="justify-content: center; padding: 0.75rem; font-size: 1.05rem;">
+          <span>🔓</span>
+          <span>Buka Studio Rahasia</span>
+        </button>
+        <div style="font-size: 0.8rem; color: #8E9AAF;">PIN Bawaan: <strong>1234</strong></div>
+      </form>
+    </div>
+  </div>
 
   <script type="module" src="/src/main.js"></script>
 </body>

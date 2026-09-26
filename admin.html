@@ -15,6 +15,35 @@
 </head>
 <body class="admin-body">
 
+  <!-- Parental Lock Screen (Hidden if session is unlocked) -->
+  <div id="admin-lock-screen" class="modal-backdrop" style="background: var(--admin-bg); z-index: 10000;">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 420px; text-align: center; border-radius: 24px;">
+      <a href="/" class="btn-paper" style="position: absolute; top: 1rem; left: 1rem; padding: 0.35rem 0.75rem; font-size: 0.9rem;" title="Kembali ke Permainan">
+        <span>🎮</span>
+        <span>Game</span>
+      </a>
+      <div style="font-size: 3rem; margin: 1rem 0 0.25rem;">🔐</div>
+      <h2 class="modal-title" style="font-size: 1.45rem;">Pintu Masuk Rahasia</h2>
+      <p class="modal-subtitle" style="font-size: 0.92rem; margin-bottom: 1.25rem;">
+        Khusus Orang Tua & Guru. Masukkan PIN atau jawab pertanyaan matematika:
+      </p>
+
+      <div style="background: #FFF9DB; border: 2.5px dashed #2B2D42; border-radius: 14px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: #856404; text-transform: uppercase;">Pertanyaan Matematika:</div>
+        <div id="admin-challenge-text" style="font-family: 'Balsamiq Sans', cursive, sans-serif; font-size: 1.6rem; font-weight: 700; margin-top: 0.25rem;">6 × 7 = ?</div>
+      </div>
+
+      <form id="admin-lock-form" style="display: flex; flex-direction: column; gap: 0.85rem;">
+        <input type="text" id="admin-lock-input" class="search-input" style="text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px;" placeholder="Jawaban / PIN" autocomplete="off" required autofocus>
+        <button type="submit" class="btn-paper btn-paper-primary" style="justify-content: center; padding: 0.85rem; font-size: 1.1rem;">
+          <span>🔓</span>
+          <span>Buka Studio</span>
+        </button>
+        <div style="font-size: 0.82rem; color: #8E9AAF;">PIN Bawaan: <strong>1234</strong></div>
+      </form>
+    </div>
+  </div>
+
   <!-- Header -->
   <header class="admin-header">
     <div class="admin-header-content">
@@ -43,6 +72,11 @@
           <span>💾</span>
           <span>Cadangan</span>
         </button>
+        <button class="btn-paper" id="btn-lock-session" title="Kunci Kembali Halaman Ini" style="color: #495057;">
+          <span>🔒</span>
+          <span>Kunci</span>
+        </button>
+      </div>
       </div>
     </div>
   </header>

@@ -2,6 +2,7 @@
 import './style.css';
 import { wordRepository } from './services/wordRepository.js';
 import { audioEngine } from './services/audioEngine.js';
+import { parentalLock } from './services/parentalLock.js';
 import { createMonsterElement, createMonsterSVG } from './components/monsterFactory.js';
 import { DragDropEngine } from './components/dragDropEngine.js';
 import { VignetteTheater } from './components/vignetteTheater.js';
@@ -40,6 +41,14 @@ class MonsterPhonicsApp {
     this.btnStickers = document.getElementById('btn-open-stickers');
     this.theaterContainerEl = document.getElementById('vignette-theater-container');
     this.stickerBookContainerEl = document.getElementById('sticker-book-container');
+
+    // Secret Parental Gate Elements
+    this.brandBadgeEl = document.querySelector('.brand-badge');
+    this.parentalGateModal = document.getElementById('parental-gate-modal');
+    this.parentalChallengeText = document.getElementById('parental-challenge-text');
+    this.parentalGateInput = document.getElementById('parental-gate-input');
+    this.parentalGateForm = document.getElementById('parental-gate-form');
+    this.btnCloseParentalGate = document.getElementById('btn-close-parental-gate');
   }
 
   initEngines() {
@@ -111,6 +120,69 @@ class MonsterPhonicsApp {
       window.removeEventListener('pointerdown', unlockAudio);
     };
     window.addEventListener('pointerdown', unlockAudio);
+
+    // Secret Parental Gate Gestures on Brand Logo (Quad tap or 1.8s long-press)
+    let tapCount = 0;
+    let tapResetTimer = null;
+    let longPressTimer = null;
+
+    const openParentalGate = () => {
+      audioEngine.playGrab();
+      const challenge = parentalLock.generateChallenge();
+      this.parentalChallengeText.textContent = challenge.question;
+      this.parentalGateInput.value = '';
+      this.parentalGateModal.classList.remove('hidden');
+      setTimeout(() => this.parentalGateInput.focus(), 150);
+    };
+
+    if (this.brandBadgeEl) {
+      this.brandBadgeEl.style.userSelect = 'none';
+
+      // 1. Secret multiple taps (4 taps within 1.5 seconds)
+      this.brandBadgeEl.addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapResetTimer);
+        if (tapCount >= 4) {
+          tapCount = 0;
+          openParentalGate();
+        } else {
+          tapResetTimer = setTimeout(() => { tapCount = 0; }, 1500);
+        }
+      });
+
+      // 2. Secret long-press (Hold logo for 1.8 seconds)
+      this.brandBadgeEl.addEventListener('pointerdown', () => {
+        longPressTimer = setTimeout(() => {
+          openParentalGate();
+        }, 1800);
+      });
+      const cancelLongPress = () => clearTimeout(longPressTimer);
+      this.brandBadgeEl.addEventListener('pointerup', cancelLongPress);
+      this.brandBadgeEl.addEventListener('pointercancel', cancelLongPress);
+      this.brandBadgeEl.addEventListener('pointerleave', cancelLongPress);
+    }
+
+    if (this.btnCloseParentalGate) {
+      this.btnCloseParentalGate.addEventListener('click', () => {
+        this.parentalGateModal.classList.add('hidden');
+      });
+    }
+
+    if (this.parentalGateForm) {
+      this.parentalGateForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const ans = this.parentalGateInput.value;
+        if (parentalLock.verify(ans)) {
+          window.location.href = '/admin';
+        } else {
+          this.parentalGateInput.style.borderColor = '#FA5252';
+          this.parentalGateInput.value = '';
+          const newChallenge = parentalLock.generateChallenge();
+          this.parentalChallengeText.textContent = newChallenge.question;
+          alert('Jawaban atau PIN belum tepat. Silakan coba lagi.');
+        }
+      });
+    }
   }
 
   loadWord(index) {

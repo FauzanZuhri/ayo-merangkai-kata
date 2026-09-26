@@ -4,6 +4,7 @@ import { wordRepository } from './services/wordRepository.js';
 import { audioStorage } from './services/audioStorage.js';
 import { VoiceRecorder } from './services/voiceRecorder.js';
 import { LETTER_PHONICS_MAP } from './data/words.js';
+import { parentalLock } from './services/parentalLock.js';
 
 class AdminApp {
   constructor() {
@@ -22,6 +23,7 @@ class AdminApp {
     this.currentPlayingAudio = null;
 
     this.initDOM();
+    this.initLockScreen();
     this.bindEvents();
     this.initData();
   }
@@ -88,6 +90,30 @@ class AdminApp {
     this.btnTriggerRestore = document.getElementById('btn-trigger-restore');
     this.backupFileInput = document.getElementById('backup-file-input');
     this.btnResetDefaults = document.getElementById('btn-reset-defaults');
+
+    // Secret Parental Lock Elements
+    this.adminLockScreen = document.getElementById('admin-lock-screen');
+    this.adminChallengeText = document.getElementById('admin-challenge-text');
+    this.adminLockForm = document.getElementById('admin-lock-form');
+    this.adminLockInput = document.getElementById('admin-lock-input');
+    this.btnLockSession = document.getElementById('btn-lock-session');
+  }
+
+  initLockScreen() {
+    if (!this.adminLockScreen) return;
+    if (parentalLock.isUnlocked()) {
+      this.adminLockScreen.classList.add('hidden');
+    } else {
+      this.adminLockScreen.classList.remove('hidden');
+      const challenge = parentalLock.generateChallenge();
+      if (this.adminChallengeText) {
+        this.adminChallengeText.textContent = challenge.question;
+      }
+      if (this.adminLockInput) {
+        this.adminLockInput.value = '';
+        setTimeout(() => this.adminLockInput.focus(), 150);
+      }
+    }
   }
 
   async initData() {
@@ -276,6 +302,32 @@ class AdminApp {
   }
 
   bindEvents() {
+    // Secret Parental Lock form
+    if (this.adminLockForm) {
+      this.adminLockForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const ans = this.adminLockInput.value;
+        if (parentalLock.verify(ans)) {
+          this.adminLockScreen.classList.add('hidden');
+        } else {
+          this.adminLockInput.style.borderColor = '#FA5252';
+          this.adminLockInput.value = '';
+          const newChallenge = parentalLock.generateChallenge();
+          if (this.adminChallengeText) {
+            this.adminChallengeText.textContent = newChallenge.question;
+          }
+          alert('Jawaban matematika atau PIN belum tepat. Silakan coba lagi.');
+        }
+      });
+    }
+
+    if (this.btnLockSession) {
+      this.btnLockSession.addEventListener('click', () => {
+        parentalLock.lock();
+        this.initLockScreen();
+      });
+    }
+
     // Search & Filter
     this.filterSearch.addEventListener('input', () => this.renderWordsGrid());
     this.filterCategory.addEventListener('change', () => this.renderWordsGrid());
