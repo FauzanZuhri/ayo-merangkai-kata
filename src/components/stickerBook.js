@@ -3,6 +3,7 @@
 
 import { wordRepository } from '../services/wordRepository.js';
 import { audioEngine } from '../services/audioEngine.js';
+import { DIORAMA_SLOTS, getSlotForWord } from '../data/dioramaSlots.js';
 
 const STORAGE_COMPLETED_KEY = 'monster_phonics_completed_words';
 const STORAGE_PLACEMENTS_KEY = 'monster_phonics_diorama_stickers';
@@ -114,74 +115,39 @@ export class StickerBook {
             </div>
           </div>
 
-          <!-- Panorama Viewport (Horizontal Scrollable Canvas) -->
-          <div class="diorama-viewport" id="diorama-viewport">
-            <div class="diorama-canvas" id="diorama-canvas">
+          <!-- Panorama Viewport (Horizontal Scrollable Canvas with Slide Navigation) -->
+          <div class="peel-viewport-wrapper">
+            <button type="button" class="btn-diorama-slide btn-slide-prev" id="btn-album-slide-prev" aria-label="Geser ke kiri">◀</button>
+            <button type="button" class="btn-diorama-slide btn-slide-next" id="btn-album-slide-next" aria-label="Geser ke kanan">▶</button>
 
-              <!-- ZONE 1: Padang Rumput Ceria (0px - 550px) -->
-              <div class="diorama-zone zone-meadow" style="left: 0; width: 550px;">
-                <div class="zone-badge">🌳 Padang Rumput Ceria</div>
-                <!-- Papercraft Landscape Elements -->
-                <div class="paper-sun"></div>
-                <div class="paper-hill hill-meadow-1"></div>
-                <div class="paper-hill hill-meadow-2"></div>
-                <div class="paper-tree tree-1">
-                  <div class="paper-tree-leaves"></div>
-                  <div class="paper-tree-trunk"></div>
+            <div class="diorama-viewport" id="diorama-viewport">
+              <div class="diorama-canvas" id="diorama-canvas">
+                <!-- Habitat Strips Layer -->
+                <div class="peel-strips-layer" id="diorama-album-strips-layer"></div>
+
+                <!-- ZONE 1: Padang Rumput Ceria (0px - 550px) -->
+                <div class="diorama-zone zone-meadow" style="left: 0; width: 550px;">
+                  <div class="zone-badge">🌳 Padang Rumput Ceria</div>
                 </div>
-                <div class="paper-flower flower-1">🌸</div>
-                <div class="paper-flower flower-2">🌼</div>
-                <div class="paper-flower flower-3">🌷</div>
-                <div class="paper-fence"></div>
-              </div>
 
-              <!-- ZONE 2: Sungai & Danau (550px - 1100px) -->
-              <div class="diorama-zone zone-stream" style="left: 550px; width: 550px;">
-                <div class="zone-badge">🐠 Sungai & Danau Ceria</div>
-                <div class="paper-hill hill-stream-bg"></div>
-                <div class="paper-bridge"></div>
-                <div class="paper-water-waves wave-1"></div>
-                <div class="paper-water-waves wave-2"></div>
-                <div class="paper-water-ripples ripple-1"></div>
-                <div class="paper-water-ripples ripple-2"></div>
-                <div class="paper-reed reed-1">🌾</div>
-                <div class="paper-reed reed-2">🌾</div>
-              </div>
-
-              <!-- ZONE 3: Kota & Jalan Raya (1100px - 1650px) -->
-              <div class="diorama-zone zone-city" style="left: 1100px; width: 550px;">
-                <div class="zone-badge">🚗 Kota & Jalan Raya</div>
-                <div class="paper-city-skyline"></div>
-                <div class="paper-house house-pink">
-                  <div class="paper-house-roof"></div>
-                  <div class="paper-house-body"></div>
+                <!-- ZONE 2: Sungai & Danau (550px - 1100px) -->
+                <div class="diorama-zone zone-stream" style="left: 550px; width: 550px;">
+                  <div class="zone-badge">🐠 Sungai & Danau Ceria</div>
                 </div>
-                <div class="paper-house house-yellow">
-                  <div class="paper-house-roof"></div>
-                  <div class="paper-house-body"></div>
+
+                <!-- ZONE 3: Kota & Jalan Raya (1100px - 1650px) -->
+                <div class="diorama-zone zone-city" style="left: 1100px; width: 550px;">
+                  <div class="zone-badge">🚗 Kota & Jalan Raya</div>
                 </div>
-                <div class="paper-road">
-                  <div class="paper-road-lines"></div>
+
+                <!-- ZONE 4: Bukit & Langit Bintang (1650px - 2200px) -->
+                <div class="diorama-zone zone-sky" style="left: 1650px; width: 550px;">
+                  <div class="zone-badge">☁️ Langit Bintang</div>
                 </div>
-                <div class="paper-lamppost">💡</div>
+
+                <!-- Dynamic Placed Stickers Container -->
+                <div class="diorama-placed-stickers" id="diorama-placed-stickers"></div>
               </div>
-
-              <!-- ZONE 4: Bukit & Langit Bintang (1650px - 2200px) -->
-              <div class="diorama-zone zone-sky" style="left: 1650px; width: 550px;">
-                <div class="zone-badge">☁️ Langit Bintang</div>
-                <div class="paper-twilight-bg"></div>
-                <div class="paper-sky-cloud cloud-1">☁️</div>
-                <div class="paper-sky-cloud cloud-2">☁️</div>
-                <div class="paper-sky-moon">🌙</div>
-                <div class="paper-star-mobile star-1">✨</div>
-                <div class="paper-star-mobile star-2">⭐</div>
-                <div class="paper-star-mobile star-3">🌟</div>
-                <div class="paper-rainbow-arc"></div>
-              </div>
-
-              <!-- Dynamic Placed Stickers Container -->
-              <div class="diorama-placed-stickers" id="diorama-placed-stickers"></div>
-
             </div>
           </div>
 
@@ -255,6 +221,8 @@ export class StickerBook {
       }
     });
 
+    this.renderStrips();
+
     if (this.drawerEl.children.length === 0) {
       this.drawerEl.innerHTML = `
         <div class="drawer-empty-hint">
@@ -262,6 +230,31 @@ export class StickerBook {
         </div>
       `;
     }
+  }
+
+  renderStrips() {
+    const stripsContainer = document.getElementById('diorama-album-strips-layer');
+    if (!stripsContainer) return;
+    stripsContainer.innerHTML = '';
+    const placements = this.getStickerPlacements();
+
+    Object.keys(DIORAMA_SLOTS).forEach(wordId => {
+      const slot = DIORAMA_SLOTS[wordId];
+      const isFilled = placements[wordId] && placements[wordId].isPlaced;
+
+      const stripEl = document.createElement('div');
+      stripEl.className = `diorama-slot-strip ${isFilled ? 'is-filled-strip' : ''}`;
+      stripEl.setAttribute('data-word-id', wordId);
+      stripEl.style.left = `${slot.x}px`;
+      stripEl.style.top = `${slot.y}px`;
+      stripEl.innerHTML = `
+        <div class="strip-dashed-frame">
+          <span class="strip-icon">${slot.icon}</span>
+        </div>
+        <div class="strip-label-ribbon">${slot.word}</div>
+      `;
+      stripsContainer.appendChild(stripEl);
+    });
   }
 
   renderCanvasSticker(wordItem, x, y, rotation) {
@@ -385,11 +378,20 @@ export class StickerBook {
           upEvt.clientY <= viewportRect.bottom
         ) {
           const canvasRect = this.canvasEl.getBoundingClientRect();
-          const targetX = Math.round(upEvt.clientX - canvasRect.left);
-          const targetY = Math.round(upEvt.clientY - canvasRect.top);
+          let targetX = Math.round(upEvt.clientX - canvasRect.left);
+          let targetY = Math.round(upEvt.clientY - canvasRect.top);
+          let finalRot = initialRot;
+
+          // Magnetic snap to designated slot if dropped nearby (< 85px)
+          const slot = getSlotForWord(wordItem.id);
+          if (slot && Math.hypot(targetX - slot.x, targetY - slot.y) < 85) {
+            targetX = slot.x;
+            targetY = slot.y;
+            finalRot = 0;
+          }
 
           audioEngine.playPeelStick();
-          this.saveStickerPlacement(wordItem.id, targetX, targetY, initialRot);
+          this.saveStickerPlacement(wordItem.id, targetX, targetY, finalRot);
           this.renderStickers();
         } else {
           audioEngine.playPaperLand();
@@ -445,10 +447,23 @@ export class StickerBook {
           stickerEl.classList.remove('is-dragging-on-canvas');
           audioEngine.playPeelStick();
 
-          const finalX = parseFloat(stickerEl.style.left);
-          const finalY = parseFloat(stickerEl.style.top);
-          this.saveStickerPlacement(wordItem.id, finalX, finalY, rot);
-          stickerEl.style.transform = `translate(-50%, -50%) scale(1) rotate(${rot}deg)`;
+          let finalX = parseFloat(stickerEl.style.left);
+          let finalY = parseFloat(stickerEl.style.top);
+          let finalRot = rot;
+
+          // Magnetic snap to designated slot if dropped nearby (< 85px)
+          const slot = getSlotForWord(wordItem.id);
+          if (slot && Math.hypot(finalX - slot.x, finalY - slot.y) < 85) {
+            finalX = slot.x;
+            finalY = slot.y;
+            finalRot = 0;
+          }
+
+          this.saveStickerPlacement(wordItem.id, finalX, finalY, finalRot);
+          stickerEl.style.left = `${finalX}px`;
+          stickerEl.style.top = `${finalY}px`;
+          stickerEl.style.transform = `translate(-50%, -50%) scale(1) rotate(${finalRot}deg)`;
+          this.renderStrips();
         }
       };
 
@@ -459,6 +474,26 @@ export class StickerBook {
   }
 
   bindEvents() {
+    // Left & Right slide buttons
+    const prevBtn = document.getElementById('btn-album-slide-prev');
+    const nextBtn = document.getElementById('btn-album-slide-next');
+    if (prevBtn) {
+      prevBtn.addEventListener('click', () => {
+        audioEngine.playGrab();
+        if (this.viewportEl) {
+          this.viewportEl.scrollBy({ left: -450, behavior: 'smooth' });
+        }
+      });
+    }
+    if (nextBtn) {
+      nextBtn.addEventListener('click', () => {
+        audioEngine.playGrab();
+        if (this.viewportEl) {
+          this.viewportEl.scrollBy({ left: 450, behavior: 'smooth' });
+        }
+      });
+    }
+
     // Close button
     const closeBtn = document.getElementById('btn-close-stickers');
     if (closeBtn) {
