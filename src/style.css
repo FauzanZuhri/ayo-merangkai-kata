@@ -793,219 +793,703 @@ body::after {
 }
 
 /* ==========================================================
-   STICKER BOOK MODAL (PHYSICAL SCRAPBOOK ALBUM)
+   PANORAMIC PAPERCRAFT DIORAMA ALBUM
    ========================================================== */
 
-.sticker-book-modal {
-  background: var(--paper-bg);
+.diorama-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(40, 42, 58, 0.7);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  padding: 0.75rem;
+}
+
+.diorama-modal-window {
+  background: #FFFDF7;
   border: 4px solid var(--color-marker);
-  border-radius: var(--radius-modal);
-  box-shadow: 6px 8px 0px var(--color-marker);
-  width: 100%;
-  max-width: 680px;
-  max-height: 85vh;
+  border-radius: 24px;
+  box-shadow: 8px 10px 0px var(--color-marker);
+  width: 96vw;
+  max-width: 1200px;
+  height: 88vh;
+  max-height: 740px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
-  /* Lined notebook grid texture inside the scrapbook album */
-  background-image: 
-    linear-gradient(rgba(175, 195, 220, 0.25) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(175, 195, 220, 0.25) 1px, transparent 1px);
-  background-size: 24px 24px;
 }
 
-.sticker-book-header {
+.diorama-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.75rem;
-  background: #FFFDF7;
+  padding: 0.75rem 1.25rem;
+  background: #FFFFFF;
   border-bottom: 3.5px solid var(--color-marker);
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  z-index: 10;
 }
 
-.header-title-box {
+.diorama-title-box {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
-.header-title-box h2 {
+.diorama-header-icon {
+  font-size: 2rem;
+  background: #FFE5EC;
+  border: 2px solid var(--color-marker);
+  border-radius: 12px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.diorama-title {
   font-family: var(--font-heading);
-  font-size: 1.55rem;
+  font-size: 1.35rem;
   font-weight: 700;
   color: var(--text-dark);
+  margin: 0;
 }
 
-.sticker-emoji {
-  font-size: 2.2rem;
-}
-
-.sticker-subtitle {
+.diorama-subtitle {
   font-family: var(--font-primary);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-muted);
 }
 
-.btn-close-modal {
-  background: var(--color-primary);
-  color: #FFF;
-  border: 3px solid var(--color-marker);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  font-size: 1.35rem;
-  font-weight: 900;
-  cursor: pointer;
-  box-shadow: var(--shadow-paper-btn);
+/* Zone jump navigation pills */
+.diorama-zone-navs {
   display: flex;
   align-items: center;
-  justify-content: center;
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  gap: 0.4rem;
 }
 
-.btn-close-modal:hover {
-  transform: translateY(-2px);
-  box-shadow: 3px 5px 0px var(--color-marker);
-}
-
-.btn-close-modal:active {
-  transform: translate(2px, 3px);
-  box-shadow: var(--shadow-paper-active);
-}
-
-.sticker-progress-ribbon {
-  padding: 0.9rem 1.75rem;
-  background: var(--paper-sheet);
-  border-bottom: 3px solid var(--color-marker);
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
+.btn-zone-jump {
   font-family: var(--font-heading);
-  font-size: 1.05rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  margin-bottom: 0.4rem;
+  padding: 0.35rem 0.75rem;
+  background: #FAF8F2;
+  border: 2px solid var(--color-marker);
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 1px 2px 0px var(--color-marker);
+  transition: transform 0.1s ease;
 }
 
-.progress-bar-bg {
-  width: 100%;
-  height: 16px;
+.btn-zone-jump:hover {
+  transform: translateY(-2px);
   background: #FFF;
-  border: 2.5px solid var(--color-marker);
-  border-radius: var(--radius-badge);
+}
+
+.btn-zone-jump:active {
+  transform: translate(1px, 1px);
+  box-shadow: none;
+}
+
+.diorama-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.diorama-progress-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  background: #FFF9DB;
+  border: 2px solid var(--color-marker);
+  border-radius: 14px;
+  padding: 0.35rem 0.75rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.btn-reset-diorama {
+  font-size: 0.88rem;
+  padding: 0.4rem 0.75rem;
+}
+
+.btn-diorama-close {
+  width: 40px;
+  height: 40px;
+  font-size: 1.15rem;
+}
+
+/* ==========================================================
+   PANORAMA VIEWPORT & SEAMLESS 4-ZONE CANVAS
+   ========================================================== */
+
+.diorama-viewport {
+  flex: 1;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  touch-action: pan-x;
+  background: #CEF3FF;
+  scroll-behavior: smooth;
+  user-select: none;
+  cursor: grab;
+}
+
+.diorama-viewport:active {
+  cursor: grabbing;
+}
+
+.diorama-canvas {
+  position: relative;
+  width: 2200px;
+  height: 100%;
+  min-height: 380px;
+  display: flex;
+}
+
+.diorama-zone {
+  position: absolute;
+  top: 0;
+  bottom: 0;
   overflow: hidden;
 }
 
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--color-lemon), var(--color-mint));
-  border-radius: var(--radius-badge);
-  transition: width 0.4s ease;
+.zone-badge {
+  position: absolute;
+  top: 14px;
+  left: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 2px solid var(--color-marker);
+  border-radius: 12px;
+  padding: 0.3rem 0.8rem;
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  box-shadow: 2px 2px 0px rgba(40, 42, 58, 0.15);
+  z-index: 10;
 }
 
-.sticker-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-  gap: 1.25rem;
-  padding: 1.5rem 1.75rem;
-  overflow-y: auto;
+/* ZONE 1: MEADOW */
+.zone-meadow {
+  background: linear-gradient(180deg, #BCE7FD 0%, #E8F8F5 50%, #7BC676 51%, #52B788 100%);
 }
 
-/* Individual Sticker Items (Physical Die-Cut Sticker Style) */
-.sticker-card {
-  padding: 1rem 0.6rem;
+.paper-sun {
+  position: absolute;
+  top: 25px;
+  left: 80px;
+  width: 60px;
+  height: 60px;
+  background: #FFD166;
+  border: 3px solid var(--color-marker);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0px rgba(40, 42, 58, 0.15);
+}
+
+.hill-meadow-1 {
+  position: absolute;
+  bottom: 0;
+  left: -20px;
+  width: 320px;
+  height: 160px;
+  background: #95D5B2;
+  border-top: 3px solid var(--color-marker);
+  border-radius: 180px 180px 0 0;
+}
+
+.hill-meadow-2 {
+  position: absolute;
+  bottom: 0;
+  left: 240px;
+  width: 340px;
+  height: 140px;
+  background: #52B788;
+  border-top: 3px solid var(--color-marker);
+  border-radius: 200px 200px 0 0;
+}
+
+.paper-tree {
+  position: absolute;
+  bottom: 60px;
+  left: 360px;
+}
+
+.paper-tree-leaves {
+  width: 90px;
+  height: 90px;
+  background: #40916C;
+  border: 3px solid var(--color-marker);
+  border-radius: 50%;
+  box-shadow: 3px 3px 0px rgba(40, 42, 58, 0.15);
+}
+
+.paper-tree-trunk {
+  width: 24px;
+  height: 50px;
+  background: #8D5B4C;
+  border: 2.5px solid var(--color-marker);
+  margin: -10px auto 0;
+  border-radius: 4px;
+}
+
+.paper-flower {
+  position: absolute;
+  font-size: 1.5rem;
+}
+.flower-1 { bottom: 30px; left: 80px; }
+.flower-2 { bottom: 45px; left: 180px; }
+.flower-3 { bottom: 25px; left: 280px; }
+
+/* ZONE 2: STREAM & RIVER */
+.zone-stream {
+  background: linear-gradient(180deg, #D4F1F4 0%, #AEE1E1 50%, #48CAE4 51%, #0096C7 100%);
+}
+
+.hill-stream-bg {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 550px;
+  height: 120px;
+  background: #52B788;
+  border-top: 3px solid var(--color-marker);
+}
+
+.paper-water-waves {
+  position: absolute;
+  bottom: 0;
+  left: 40px;
+  width: 470px;
+  height: 90px;
+  background: #0077B6;
+  border-top: 3px solid var(--color-marker);
+  border-radius: 40px 40px 0 0;
+}
+
+.wave-2 {
+  bottom: 0;
+  left: 80px;
+  width: 390px;
+  height: 70px;
+  background: #0096C7;
+}
+
+.paper-bridge {
+  position: absolute;
+  bottom: 75px;
+  left: 170px;
+  width: 130px;
+  height: 38px;
+  background: #DDA15E;
+  border: 3px solid var(--color-marker);
+  border-radius: 50px 50px 0 0;
+  box-shadow: 3px 3px 0px rgba(40, 42, 58, 0.15);
+}
+
+.paper-reed {
+  position: absolute;
+  bottom: 70px;
+  font-size: 1.6rem;
+}
+.reed-1 { left: 50px; }
+.reed-2 { left: 450px; }
+
+/* ZONE 3: CITY & ROAD */
+.zone-city {
+  background: linear-gradient(180deg, #FFE5D9 0%, #FFF1E6 48%, #CBD5E0 49%, #4A5568 62%, #2D3748 100%);
+}
+
+.paper-city-skyline {
+  position: absolute;
+  bottom: 120px;
+  left: 30px;
+  width: 480px;
+  height: 110px;
+  background: #A0AEC0;
+  clip-path: polygon(0 100%, 0 40%, 15% 40%, 15% 15%, 35% 15%, 35% 55%, 50% 55%, 50% 10%, 70% 10%, 70% 35%, 85% 35%, 85% 20%, 100% 20%, 100% 100%);
+  opacity: 0.65;
+}
+
+.paper-house {
+  position: absolute;
+  bottom: 90px;
+  width: 90px;
+  height: 95px;
+}
+
+.house-pink { left: 100px; }
+.house-yellow { left: 340px; }
+
+.paper-house-roof {
+  width: 100px;
+  height: 35px;
+  background: #E63946;
+  border: 3px solid var(--color-marker);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.house-yellow .paper-house-roof {
+  background: #F77F00;
+}
+
+.paper-house-body {
+  width: 80px;
+  height: 60px;
+  background: #FFB703;
+  border: 3px solid var(--color-marker);
+  margin: 0 auto;
+}
+
+.house-pink .paper-house-body {
+  background: #FFC2D1;
+}
+
+.paper-road {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 550px;
+  height: 90px;
+  background: #2D3748;
+  border-top: 3.5px solid var(--color-marker);
+}
+
+.paper-road-lines {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: repeating-linear-gradient(90deg, #FFFFFF, #FFFFFF 35px, transparent 35px, transparent 65px);
+  transform: translateY(-50%);
+}
+
+.paper-lamppost {
+  position: absolute;
+  bottom: 85px;
+  left: 230px;
+  font-size: 1.8rem;
+}
+
+/* ZONE 4: SKY & STARS */
+.zone-sky {
+  background: linear-gradient(180deg, #1D2D44 0%, #3E5C76 45%, #748CAB 75%, #F0EBD8 100%);
+}
+
+.paper-sky-moon {
+  position: absolute;
+  top: 25px;
+  right: 80px;
+  font-size: 3.2rem;
+  filter: drop-shadow(0 0 10px rgba(255, 235, 100, 0.6));
+}
+
+.paper-sky-cloud {
+  position: absolute;
+  font-size: 2.8rem;
+}
+.cloud-1 { top: 70px; left: 60px; }
+.cloud-2 { top: 120px; left: 280px; }
+
+.paper-star-mobile {
+  position: absolute;
+  font-size: 1.8rem;
+  animation: starTwinkle 1.8s infinite alternate ease-in-out;
+}
+.star-1 { top: 40px; left: 160px; animation-delay: 0s; }
+.star-2 { top: 60px; left: 380px; animation-delay: 0.6s; }
+.star-3 { top: 110px; left: 470px; animation-delay: 1.1s; }
+
+@keyframes starTwinkle {
+  0% { transform: scale(0.85); opacity: 0.6; }
+  100% { transform: scale(1.25); opacity: 1; filter: drop-shadow(0 0 8px #FFD166); }
+}
+
+/* ==========================================================
+   PLACED STICKERS ON CANVAS
+   ========================================================== */
+
+.diorama-placed-stickers {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 40;
+}
+
+.canvas-placed-sticker {
+  position: absolute;
+  width: 86px;
+  height: 94px;
+  background: #FFFFFF;
+  border: 3.5px solid #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 2px 5px 12px rgba(40, 42, 58, 0.28), 0 0 0 1.5px rgba(40, 42, 58, 0.15);
+  cursor: grab;
+  pointer-events: auto;
+  touch-action: none;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  min-height: 135px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  justify-content: center;
+  padding: 4px;
+  box-sizing: border-box;
+  transition: transform 0.12s ease, filter 0.12s ease;
+  user-select: none;
 }
 
-/* Unlocked physical die-cut sticker pasted into scrapbook */
-.sticker-card.is-unlocked {
-  background: #FFFFFF;
-  border: 4px solid #FFFFFF;
-  border-radius: 16px;
-  box-shadow: 1px 3px 6px rgba(40, 42, 58, 0.2), 0 0 0 1.5px rgba(40, 42, 58, 0.12);
-  cursor: pointer;
+.canvas-placed-sticker:hover {
+  transform: translate(-50%, -50%) scale(1.08) !important;
+  box-shadow: 4px 8px 18px rgba(40, 42, 58, 0.35);
+  z-index: 60;
 }
 
-.sticker-card.is-unlocked:hover {
-  transform: translateY(-5px) scale(1.08) !important;
-  box-shadow: 3px 8px 14px rgba(40, 42, 58, 0.25), 0 0 0 1.5px rgba(40, 42, 58, 0.18) !important;
+.canvas-placed-sticker:active {
+  cursor: grabbing;
 }
 
-.sticker-badge {
-  width: 74px;
-  height: 74px;
-  background: #FFF9E6;
-  border: 2.5px solid var(--color-marker);
-  border-radius: 50%;
+.canvas-placed-sticker.is-dragging-on-canvas {
+  cursor: grabbing;
+  opacity: 0.9;
+  z-index: 100 !important;
+  box-shadow: 8px 16px 24px rgba(40, 42, 58, 0.4) !important;
+}
+
+.canvas-sticker-art {
+  width: 62px;
+  height: 62px;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  margin-bottom: 0.5rem;
-  overflow: visible;
+  overflow: hidden;
 }
 
-.sticker-badge.sticker-badge-unlocked {
-  background: #FFFFFF;
-  border-color: #FFFFFF;
-  box-shadow: 1px 2px 6px rgba(40, 42, 58, 0.2);
-}
-
-.sticker-real-img {
+.canvas-sticker-art img {
   width: 100%;
   height: 100%;
   object-fit: contain;
-  border-radius: 14px;
-  display: block;
+  border-radius: 12px;
 }
 
-.sticker-icon {
-  font-size: 2rem;
-}
-
-.sticker-star {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  font-size: 1.25rem;
-  filter: drop-shadow(1px 1px 0px var(--color-marker));
-  z-index: 5;
-}
-
-.sticker-name {
+.canvas-sticker-tag {
   font-family: var(--font-heading);
-  font-size: 1.2rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--text-dark);
+  margin-top: 2px;
 }
 
-.sticker-hint-mini {
-  font-family: var(--font-primary);
+.canvas-sticker-remover {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #FF6B6B;
+  color: white;
+  border: 2px solid var(--color-marker);
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
   font-size: 0.75rem;
+  font-weight: 900;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 1px 1px 0px var(--color-marker);
+}
+
+.canvas-placed-sticker:hover .canvas-sticker-remover {
+  display: flex;
+}
+
+/* Jiggle Reaction Animation */
+.jiggle-reaction {
+  animation: stickerWobble 0.5s ease;
+}
+
+@keyframes stickerWobble {
+  0% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+  25% { transform: translate(-50%, -50%) scale(1.2) rotate(-8deg); }
+  50% { transform: translate(-50%, -50%) scale(1.15) rotate(8deg); }
+  75% { transform: translate(-50%, -50%) scale(1.18) rotate(-4deg); }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+/* Water Bubbles on Diorama */
+.diorama-bubble {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1.5px solid #0077B6;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: dioramaBubbleFloat 1.2s ease-out forwards;
+  z-index: 55;
+}
+
+@keyframes dioramaBubbleFloat {
+  0% { transform: translateY(0) scale(0.5); opacity: 0.9; }
+  100% { transform: translateY(-70px) scale(1.4); opacity: 0; }
+}
+
+/* ==========================================================
+   BOTTOM DRAWER (STICKER COLLECTION TRAY)
+   ========================================================== */
+
+.diorama-drawer-section {
+  background: #FFF9ED;
+  border-top: 3.5px solid var(--color-marker);
+  height: 140px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  z-index: 20;
+}
+
+.diorama-drawer-handle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  padding: 0.35rem;
+  background: rgba(255, 224, 102, 0.4);
+  border-bottom: 2px dashed rgba(40, 42, 58, 0.2);
+}
+
+.diorama-drawer-icon {
+  font-size: 1.1rem;
+}
+
+.diorama-drawer-label {
+  font-family: var(--font-heading);
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #555E70;
+}
+
+.diorama-drawer-tray {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1.25rem;
+  overflow-x: auto;
+  overflow-y: hidden;
+  touch-action: pan-x;
+}
+
+.drawer-empty-hint {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
   font-weight: 700;
   color: #7A5EA7;
-  margin-top: 0.25rem;
+  text-align: center;
+  width: 100%;
 }
 
-/* Locked placeholder (doodled pencil outline waiting for sticker) */
-.sticker-card.is-locked {
-  border: 2.5px dashed #B8C2D4;
+.drawer-sticker-card {
+  width: 74px;
+  height: 84px;
+  flex-shrink: 0;
+  background: #FFFFFF;
+  border: 3px solid var(--color-marker);
   border-radius: 16px;
-  background: rgba(255, 255, 255, 0.4);
+  box-shadow: 2px 3px 0px var(--color-marker);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+  touch-action: none;
+  padding: 4px;
+  box-sizing: border-box;
+  transition: transform 0.12s ease;
+}
+
+.drawer-sticker-card.is-unlocked:hover {
+  transform: translateY(-4px) scale(1.06);
+  box-shadow: 3px 5px 0px var(--color-marker);
+}
+
+.drawer-sticker-card.is-being-dragged {
+  opacity: 0.3;
+}
+
+.drawer-sticker-card.is-locked {
+  background: #EDF2F7;
+  border-style: dashed;
+  cursor: not-allowed;
   opacity: 0.6;
 }
 
-.sticker-locked-icon {
-  font-size: 1.6rem;
-  opacity: 0.7;
+.drawer-sticker-badge {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drawer-sticker-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
+
+.locked-badge .locked-icon {
+  font-size: 1.4rem;
+}
+
+.drawer-sticker-name {
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-top: 2px;
+  text-align: center;
+}
+
+.diorama-drag-ghost {
+  width: 86px;
+  height: 86px;
+  background: white;
+  border: 3.5px solid white;
+  border-radius: 18px;
+  box-shadow: 6px 14px 22px rgba(40, 42, 58, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px;
+  box-sizing: border-box;
+}
+
+.diorama-drag-ghost img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Hide text helper on narrow screens */
+@media (max-width: 640px) {
+  .btn-text-hide-sm {
+    display: none;
+  }
+  .diorama-zone-navs {
+    display: none; /* Keep clean on small mobile */
+  }
+  .diorama-title {
+    font-size: 1.15rem;
+  }
 }
 
 /* ==========================================================

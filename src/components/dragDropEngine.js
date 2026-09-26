@@ -82,9 +82,9 @@ export class DragDropEngine {
       if (this.isDragging || (e.button !== undefined && e.button !== 0)) return;
       e.preventDefault();
 
-      // Audio context unlock
+      // Audio context unlock & tactile paper grab
       audioEngine.ensureContext();
-      audioEngine.playGrab();
+      audioEngine.playPaperGrab();
 
       this.isDragging = true;
       this.activePointerId = e.pointerId;
@@ -236,8 +236,8 @@ export class DragDropEngine {
           monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
           monsterEl.style.visibility = 'hidden';
 
-          // Snap audio + sparkle particles
-          audioEngine.playSnap();
+          // Snap tape audio + sparkle particles
+          audioEngine.playTapeSnap();
           this.spawnSparkleParticles(targetX, targetY);
 
           // Check if word is fully completed
@@ -247,7 +247,7 @@ export class DragDropEngine {
     } else {
       // FREE TO DRAG ANYWHERE!
       // Letter lands right where the child dropped it on the play table (melatih motorik anak)
-      audioEngine.playDropReturn();
+      audioEngine.playPaperLand();
 
       const trayRect = this.trayEl.getBoundingClientRect();
       const cardW = monsterEl.offsetWidth || 76;
