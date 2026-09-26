@@ -28,13 +28,24 @@ export class VignetteTheater {
     this.instructionTextEl = null;
     this.autoScrollTimer = null;
     this.targetStripEl = null;
+    // Track any flying ghosts for cleanup
+    this._activeGhostEl = null;
+    this._snapAnimationTimer = null;
   }
 
   show(wordData) {
+    // Clean up any leftover state from previous show
+    this._cleanup();
+
     this.currentWordData = wordData;
     this.targetSlot = getSlotForWord(wordData.id);
     this.isPlaced = false;
     this.isDragging = false;
+
+    // If this word has no designated slot, create a fallback
+    if (!this.targetSlot) {
+      this.targetSlot = { x: 400, y: 200, word: wordData.word.toUpperCase(), hint: 'di panorama', icon: '⭐', zone: 'taman' };
+    }
 
     // Save unlock progress immediately
     if (this.stickerBook) {
@@ -44,13 +55,13 @@ export class VignetteTheater {
     }
 
     // Play celebration sound & speak word sequence
-    audioEngine.playVignetteSound(wordData.vignette?.actionSound || 'cheer');
+    audioEngine.playVignetteSound(wordData.vignette?.actionSound || 'twinkle');
     audioEngine.speakWordSequence(wordData);
     this.triggerConfetti();
 
     // Render Peel & Stick Theater DOM
     this.containerEl.innerHTML = `
-      <div class="peel-theater-backdrop diorama-backdrop" role="dialog" aria-modal="true">
+      <div class="peel-theater-backdrop diorama-backdrop" role="dialog" aria-modal="true" aria-label="Selamat! Kata ${wordData.word} selesai!">
         <div class="peel-theater-window animate-pop-in">
           <!-- Washi tape at top of paper frame -->
           <div class="washi-tape" aria-hidden="true"></div>
@@ -76,7 +87,7 @@ export class VignetteTheater {
                 <span class="story-card-icon">💡</span>
                 <div class="story-card-body">
                   <div class="story-card-meaning">${wordData.meaning}</div>
-                  ${wordData.vignette?.storyText ? `<div class="story-card-tagline">“${wordData.vignette.storyText}”</div>` : ''}
+                  ${wordData.vignette?.storyText ? `<div class="story-card-tagline">"${wordData.vignette.storyText}"</div>` : ''}
                 </div>
               </div>
             </div>
@@ -90,7 +101,7 @@ export class VignetteTheater {
           <div class="peel-status-banner" id="peel-status-banner">
             <span class="banner-icon">🎯</span>
             <span class="banner-text" id="peel-instruction-text">
-              Kopek stiker <strong>${wordData.word}</strong> di bawah, lalu pasang tepat di strip <strong>${this.targetSlot.hint}</strong>!
+              Kopek stiker <strong>${wordData.word}</strong> di bawah, lalu pasang di strip <strong>${this.targetSlot.hint}</strong>!
             </span>
           </div>
 
@@ -99,8 +110,8 @@ export class VignetteTheater {
             <div class="peel-zone-nav-bar">
               <div class="peel-zone-tabs">
                 <button type="button" class="btn-peel-zone" data-x="0" title="Ke Padang Rumput">🌳 Padang Rumput</button>
-                <button type="button" class="btn-peel-zone" data-x="550" title="Ke Sungai Ceria">🐠 Sungai & Danau</button>
-                <button type="button" class="btn-peel-zone" data-x="1100" title="Ke Kota Ceria">🚗 Kota & Jalan</button>
+                <button type="button" class="btn-peel-zone" data-x="550" title="Ke Sungai Ceria">🐠 Sungai &amp; Danau</button>
+                <button type="button" class="btn-peel-zone" data-x="1100" title="Ke Kota Ceria">🚗 Kota &amp; Jalan</button>
                 <button type="button" class="btn-peel-zone" data-x="1650" title="Ke Langit Bintang">☁️ Langit Bintang</button>
               </div>
               <div class="peel-scroll-hint-text">Geser layar atau klik zona ➔</div>
@@ -139,11 +150,13 @@ export class VignetteTheater {
                 </div>
 
                 <!-- The Peelable Sticker with Curl Effect -->
-                <div class="peelable-sticker-item" id="peelable-sticker-item">
+                <div class="peelable-sticker-item" id="peelable-sticker-item" role="button" tabindex="0"
+                     aria-label="Kopek dan tempel stiker ${wordData.word}">
                   <!-- 3D folded corner cue -->
                   <div class="peel-corner-fold" aria-hidden="true"></div>
                   <div class="peel-sticker-art">
-                    <img src="${wordData.image}" alt="${wordData.word}" draggable="false">
+                    <img src="${wordData.image}" alt="${wordData.word}" draggable="false"
+                         onerror="this.style.display='none'; this.parentElement.textContent='${wordData.vignette?.type === 'cat' ? '🐱' : '⭐'}'">
                   </div>
                   <div class="peel-sticker-tag">${wordData.word}</div>
                 </div>
@@ -153,8 +166,8 @@ export class VignetteTheater {
               <div class="peel-prompt-box" id="peel-prompt-box">
                 <div class="peel-prompt-arrow">⬆️</div>
                 <div class="peel-prompt-text">
-                  <strong>Sentuh & Kopek Stiker!</strong>
-                  <span>Tarik ke strip bertanda <strong>🎯 ${this.targetSlot.word}</strong></span>
+                  <strong>Sentuh &amp; Kopek Stiker!</strong>
+                  <span>Tempel ke strip <strong>🎯 ${this.targetSlot.word}</strong></span>
                 </div>
               </div>
 
@@ -203,6 +216,19 @@ export class VignetteTheater {
     this.bindEvents(wordData);
   }
 
+  _cleanup() {
+    // Kill flying ghosts from previous show
+    if (this._activeGhostEl) {
+      this._activeGhostEl.remove();
+      this._activeGhostEl = null;
+    }
+    if (this._snapAnimationTimer) {
+      clearTimeout(this._snapAnimationTimer);
+      this._snapAnimationTimer = null;
+    }
+    this.stopAutoScroll();
+  }
+
   renderDioramaStrips(currentWord) {
     if (!this.stripsLayerEl) return;
     this.stripsLayerEl.innerHTML = '';
@@ -238,7 +264,9 @@ export class VignetteTheater {
 
   scrollToTargetSlot() {
     if (!this.viewportEl || !this.targetSlot) return;
-    const targetScrollX = Math.max(0, this.targetSlot.x - 300);
+    // Center the target slot in the viewport
+    const viewportW = this.viewportEl.clientWidth || 600;
+    const targetScrollX = Math.max(0, this.targetSlot.x - viewportW / 2 + 40);
 
     setTimeout(() => {
       if (this.viewportEl) {
@@ -277,8 +305,8 @@ export class VignetteTheater {
       if (!wordItem) return;
 
       const slot = getSlotForWord(wordId);
-      const posX = p.x || slot.x;
-      const posY = p.y || slot.y;
+      const posX = (p.x !== undefined ? p.x : null) || (slot ? slot.x : 100);
+      const posY = (p.y !== undefined ? p.y : null) || (slot ? slot.y : 100);
 
       const sticker = document.createElement('div');
       sticker.className = 'canvas-placed-sticker die-cut-sticker existing-placed-sticker';
@@ -287,7 +315,7 @@ export class VignetteTheater {
       sticker.style.transform = `translate(-50%, -50%) rotate(${p.rotation || 0}deg)`;
       sticker.innerHTML = `
         <div class="canvas-sticker-art">
-          <img src="${wordItem.image}" alt="${wordItem.word}">
+          <img src="${wordItem.image}" alt="${wordItem.word}" onerror="this.style.display='none'">
         </div>
         <div class="canvas-sticker-tag">${wordItem.word}</div>
       `;
@@ -335,6 +363,17 @@ export class VignetteTheater {
       closeBtn.addEventListener('click', () => {
         audioEngine.playGrab();
         this.hide();
+      });
+    }
+
+    // Close on backdrop click (outside the window)
+    const backdrop = this.containerEl.querySelector('.peel-theater-backdrop');
+    if (backdrop) {
+      backdrop.addEventListener('click', (e) => {
+        if (e.target === backdrop) {
+          audioEngine.playGrab();
+          this.hide();
+        }
       });
     }
 
@@ -394,6 +433,18 @@ export class VignetteTheater {
       });
     }
 
+    // Keyboard: allow Enter/Space on peelable sticker
+    if (this.peelStickerEl) {
+      this.peelStickerEl.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          if (!this.isPlaced) {
+            this.autoSnapToSlot(wordData);
+          }
+        }
+      });
+    }
+
     // Attach Pointer / Drag Gestures on the peelable sticker
     this.attachPeelAndStickGestures(wordData);
   }
@@ -407,11 +458,14 @@ export class VignetteTheater {
     let isPeeling = false;
     let ghostEl = null;
     let moveDistance = 0;
+    let pointerId = null;
 
     const onPointerDown = (e) => {
       if (this.isPlaced) return;
+      if (isPeeling) return; // Prevent duplicate gesture
       e.preventDefault();
 
+      pointerId = e.pointerId;
       startX = e.clientX;
       startY = e.clientY;
       moveDistance = 0;
@@ -423,9 +477,14 @@ export class VignetteTheater {
 
       // Create floating drag clone
       ghostEl = sticker.cloneNode(true);
+      ghostEl.id = ''; // Avoid duplicate id
       ghostEl.classList.add('is-peeling-active', 'peel-floating-ghost');
+      ghostEl.style.position = 'fixed';
+      ghostEl.style.pointerEvents = 'none';
+      ghostEl.style.zIndex = '9998';
 
       document.body.appendChild(ghostEl);
+      this._activeGhostEl = ghostEl;
       this.updateGhostPosition(ghostEl, e.clientX, e.clientY);
 
       // Hide original item and reveal wax ghost
@@ -440,11 +499,12 @@ export class VignetteTheater {
 
       window.addEventListener('pointermove', onPointerMove, { passive: false });
       window.addEventListener('pointerup', onPointerUp);
-      window.addEventListener('pointercancel', onPointerUp);
+      window.addEventListener('pointercancel', onPointerCancel);
     };
 
     const onPointerMove = (e) => {
       if (!isPeeling || !ghostEl) return;
+      if (e.pointerId !== pointerId) return;
       e.preventDefault();
 
       const dx = e.clientX - startX;
@@ -471,9 +531,9 @@ export class VignetteTheater {
       }
 
       // Check magnetic hover over target strip
-      if (this.targetStripEl && this.canvasEl) {
+      if (this.targetStripEl && this.canvasEl && this.viewportEl) {
         const canvasRect = this.canvasEl.getBoundingClientRect();
-        const curCanvasX = e.clientX - canvasRect.left;
+        const curCanvasX = e.clientX - canvasRect.left + this.viewportEl.scrollLeft;
         const curCanvasY = e.clientY - canvasRect.top;
         const distToTarget = Math.hypot(curCanvasX - this.targetSlot.x, curCanvasY - this.targetSlot.y);
 
@@ -487,54 +547,74 @@ export class VignetteTheater {
 
     const onPointerUp = (e) => {
       if (!isPeeling) return;
+      if (e.pointerId !== pointerId) return;
       isPeeling = false;
       this.stopAutoScroll();
 
       window.removeEventListener('pointermove', onPointerMove);
       window.removeEventListener('pointerup', onPointerUp);
-      window.removeEventListener('pointercancel', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerCancel);
 
       if (!ghostEl) return;
 
-      const viewportRect = this.viewportEl.getBoundingClientRect();
-      const canvasRect = this.canvasEl.getBoundingClientRect();
+      const currentGhost = ghostEl;
+      ghostEl = null;
 
-      const isInsideDiorama = (
-        e.clientX >= viewportRect.left &&
-        e.clientX <= viewportRect.right &&
-        e.clientY >= viewportRect.top &&
-        e.clientY <= viewportRect.bottom
-      );
+      // Always animate to the designated slot — child should never fail!
+      this.animateSnapToSlot(currentGhost, this.targetSlot.x, this.targetSlot.y, wordData);
+    };
 
-      // Check if dropped near the target strip or inside diorama
-      if (isInsideDiorama) {
-        const dropCanvasX = e.clientX - canvasRect.left;
-        const dropCanvasY = e.clientY - canvasRect.top;
-        const distToTarget = Math.hypot(dropCanvasX - this.targetSlot.x, dropCanvasY - this.targetSlot.y);
+    const onPointerCancel = () => {
+      if (!isPeeling) return;
+      isPeeling = false;
+      this.stopAutoScroll();
 
-        // If dropped anywhere in the diorama or near target:
-        // Snap directly to the dedicated strip slot for this word!
-        if (distToTarget < 140 || moveDistance > 20) {
-          this.animateSnapToSlot(ghostEl, this.targetSlot.x, this.targetSlot.y, wordData);
-        } else {
-          this.animateSnapToSlot(ghostEl, this.targetSlot.x, this.targetSlot.y, wordData);
-        }
-      } else if (moveDistance < 15) {
-        // Child just tapped/clicked the sticker! Smoothly fly it straight into its designated strip!
-        this.animateSnapToSlot(ghostEl, this.targetSlot.x, this.targetSlot.y, wordData);
-      } else {
-        // Released outside: glide gracefully into its dedicated strip slot so child never fails!
-        this.animateSnapToSlot(ghostEl, this.targetSlot.x, this.targetSlot.y, wordData);
-      }
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerCancel);
+
+      // Restore sticker on cancel
+      if (ghostEl) { ghostEl.remove(); ghostEl = null; this._activeGhostEl = null; }
+      if (sticker) sticker.style.visibility = 'visible';
+      if (this.waxGhostEl) this.waxGhostEl.classList.remove('visible');
+      if (this.promptBoxEl) this.promptBoxEl.style.opacity = '1';
+      if (this.targetStripEl) this.targetStripEl.classList.remove('strip-magnet-active', 'slot-hover-snap');
     };
 
     sticker.addEventListener('pointerdown', onPointerDown);
+  }
+
+  /** Called when child presses Enter/Space on sticker — auto-snap without drag */
+  autoSnapToSlot(wordData) {
+    if (this.isPlaced) return;
+    // Scroll to target zone first, then snap
+    this.scrollToTargetSlot();
+    const ghostEl = this.peelStickerEl ? this.peelStickerEl.cloneNode(true) : null;
+    if (ghostEl) {
+      ghostEl.id = '';
+      ghostEl.style.position = 'fixed';
+      ghostEl.style.pointerEvents = 'none';
+      ghostEl.style.zIndex = '9998';
+      // Start from sticker position
+      const rect = this.peelStickerEl.getBoundingClientRect();
+      ghostEl.style.left = `${rect.left + rect.width / 2}px`;
+      ghostEl.style.top = `${rect.top + rect.height / 2}px`;
+      ghostEl.style.transform = 'translate(-50%, -50%)';
+      document.body.appendChild(ghostEl);
+      this._activeGhostEl = ghostEl;
+      this.peelStickerEl.style.visibility = 'hidden';
+      if (this.waxGhostEl) this.waxGhostEl.classList.add('visible');
+    }
+    setTimeout(() => {
+      this.animateSnapToSlot(ghostEl, this.targetSlot.x, this.targetSlot.y, wordData);
+    }, 400);
   }
 
   updateGhostPosition(ghostEl, clientX, clientY) {
     if (!ghostEl) return;
     ghostEl.style.left = `${clientX}px`;
     ghostEl.style.top = `${clientY}px`;
+    ghostEl.style.transform = `translate(-50%, -50%) scale(1.1) rotate(-3deg)`;
   }
 
   startAutoScroll(speed) {
@@ -555,28 +635,51 @@ export class VignetteTheater {
 
   animateSnapToSlot(ghostEl, slotX, slotY, wordData) {
     if (!this.canvasEl || !this.viewportEl) {
-      this.finalizePlacement(wordData, slotX, slotY, ghostEl);
+      if (ghostEl) { ghostEl.remove(); this._activeGhostEl = null; }
+      this.finalizePlacement(wordData, slotX, slotY);
       return;
     }
 
-    const canvasRect = this.canvasEl.getBoundingClientRect();
-    const targetScreenX = canvasRect.left + slotX;
-    const targetScreenY = canvasRect.top + slotY;
+    // Scroll viewport so the target slot is visible during snap animation
+    const viewportW = this.viewportEl.clientWidth || 600;
+    const neededScroll = Math.max(0, slotX - viewportW / 2 + 40);
+    if (Math.abs(this.viewportEl.scrollLeft - neededScroll) > 100) {
+      this.viewportEl.scrollTo({ left: neededScroll, behavior: 'smooth' });
+    }
 
-    ghostEl.style.transition = 'all 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
-    ghostEl.style.left = `${targetScreenX}px`;
-    ghostEl.style.top = `${targetScreenY}px`;
-    ghostEl.style.transform = 'translate(-50%, -50%) scale(1.05) rotate(0deg)';
+    // Compute screen position of the slot AFTER a brief delay to allow scroll to settle
+    const doAnimate = () => {
+      if (!this.canvasEl || !this.viewportEl) {
+        if (ghostEl) { ghostEl.remove(); this._activeGhostEl = null; }
+        this.finalizePlacement(wordData, slotX, slotY);
+        return;
+      }
+      const canvasRect = this.canvasEl.getBoundingClientRect();
+      // Account for current scroll position of viewport
+      const targetScreenX = canvasRect.left + slotX - this.viewportEl.scrollLeft;
+      const targetScreenY = canvasRect.top + slotY;
 
-    setTimeout(() => {
-      this.finalizePlacement(wordData, slotX, slotY, ghostEl);
-    }, 380);
+      if (ghostEl) {
+        ghostEl.style.transition = 'all 0.38s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        ghostEl.style.left = `${targetScreenX}px`;
+        ghostEl.style.top = `${targetScreenY}px`;
+        ghostEl.style.transform = 'translate(-50%, -50%) scale(1.05) rotate(0deg)';
+      }
+
+      this._snapAnimationTimer = setTimeout(() => {
+        if (ghostEl && ghostEl.parentNode) ghostEl.remove();
+        if (this._activeGhostEl === ghostEl) this._activeGhostEl = null;
+        this.finalizePlacement(wordData, slotX, slotY);
+      }, 400);
+    };
+
+    // Give scroll a head start
+    setTimeout(doAnimate, 180);
   }
 
-  finalizePlacement(wordData, x, y, ghostEl) {
-    if (ghostEl && ghostEl.parentNode) {
-      ghostEl.remove();
-    }
+  finalizePlacement(wordData, x, y) {
+    if (this.isPlaced) return; // Guard against double-fire
+    this.isPlaced = true;
 
     // Place the sticker cleanly on the active layer
     const placedEl = document.createElement('div');
@@ -588,7 +691,7 @@ export class VignetteTheater {
 
     placedEl.innerHTML = `
       <div class="canvas-sticker-art">
-        <img src="${wordData.image}" alt="${wordData.word}">
+        <img src="${wordData.image}" alt="${wordData.word}" onerror="this.style.display='none'">
       </div>
       <div class="canvas-sticker-tag">${wordData.word}</div>
     `;
@@ -610,7 +713,6 @@ export class VignetteTheater {
 
     // Save placement permanently
     this.savePlacement(wordData.id, x, y, 0);
-    this.isPlaced = true;
 
     // Trigger sparkles & confetti burst right at the slot!
     this.triggerDropConfetti(x, y);
@@ -621,7 +723,7 @@ export class VignetteTheater {
     }
     if (this.instructionTextEl) {
       this.instructionTextEl.innerHTML = `
-        🎉 <strong>Sempurna!</strong> Stiker <strong>${wordData.word}</strong> telah terpasang rapi di strip habitatnya!
+        🎉 <strong>Sempurna!</strong> Stiker <strong>${wordData.word}</strong> telah terpasang rapi di habitatnya!
       `;
     }
 
@@ -639,8 +741,8 @@ export class VignetteTheater {
     if (!this.viewportEl) return;
     const viewportRect = this.viewportEl.getBoundingClientRect();
     const screenX = canvasX - this.viewportEl.scrollLeft + viewportRect.left;
-    const originX = Math.max(0.1, Math.min(0.9, screenX / window.innerWidth));
-    const originY = Math.max(0.1, Math.min(0.9, (viewportRect.top + 70) / window.innerHeight));
+    const originX = Math.max(0.05, Math.min(0.95, screenX / window.innerWidth));
+    const originY = Math.max(0.05, Math.min(0.95, (viewportRect.top + 70) / window.innerHeight));
 
     confetti({
       particleCount: 55,
@@ -660,7 +762,7 @@ export class VignetteTheater {
   }
 
   hide() {
-    this.stopAutoScroll();
+    this._cleanup();
     this.containerEl.classList.add('hidden');
     this.containerEl.innerHTML = '';
   }

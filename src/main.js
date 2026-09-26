@@ -261,6 +261,9 @@ class MonsterPhonicsApp {
   }
 
   handleWordCompleted() {
+    // Capture the word index at time of completion to guard against user navigating away
+    const completedIndex = this.currentWordIndex;
+
     // 1. Victory wave on all slots
     this.slots.forEach(slot => {
       if (slot.el) {
@@ -270,8 +273,9 @@ class MonsterPhonicsApp {
 
     audioEngine.playWordCelebration();
 
-    // 2. Open Vignette Theater after celebratory beat
+    // 2. Open Vignette Theater after celebratory beat — only if still on same word
     setTimeout(() => {
+      if (this.currentWordIndex !== completedIndex) return;
       this.vignetteTheater.show(this.currentWordData);
     }, 600);
   }

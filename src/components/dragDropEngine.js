@@ -22,15 +22,17 @@ export class DragDropEngine {
     this.isDragging = false;
     this.pickupAngle = 0;
     this.topZIndex = 30;
+    this._wordCompletionPending = false;
   }
 
   setTargetSlots(slots) {
     this.targetSlots = slots;
+    this._wordCompletionPending = false;
   }
 
   /**
    * Scatters letter cards organically across the play desk
-   * Training children's spatial and motor skills
+   * Uses a grid-based layout with organic jitter so letters never overlap
    */
   scatterLetters() {
     if (!this.trayEl) return;
@@ -41,29 +43,32 @@ export class DragDropEngine {
     const deskW = rect.width > 0 ? rect.width : (this.trayEl.clientWidth || 360);
     const deskH = rect.height > 0 ? rect.height : (this.trayEl.clientHeight || 280);
 
-    const cardW = Math.min(84, Math.max(64, deskW * 0.18));
-    const cardH = cardW * 1.1;
-    const pad = 12;
-
-    const usableW = Math.max(60, deskW - cardW - pad * 2);
-    const usableH = Math.max(60, deskH - cardH - pad * 2);
+    const cardW = Math.min(80, Math.max(56, deskW * 0.16));
+    const cardH = cardW * 1.15;
+    const pad = 14;
 
     const n = cards.length;
-    // Divide into sectors with organic jitter so letters don't completely overlap
-    const cols = Math.max(2, Math.min(n, Math.floor(deskW / (cardW + 16))));
+    // Strict grid so cards never overlap: distribute cells evenly
+    const cols = Math.max(1, Math.min(n, Math.floor((deskW - pad * 2) / (cardW + 10))));
     const rows = Math.ceil(n / cols);
-    const cellW = usableW / cols;
-    const cellH = usableH / rows;
+
+    const cellW = (deskW - pad * 2) / cols;
+    const cellH = Math.max(cardH + 8, (deskH - pad * 2) / rows);
+
+    // Max jitter is half of remaining space in each cell, clamped so cards stay inside cell
+    const maxJitterX = Math.max(0, (cellW - cardW) / 2 - 4);
+    const maxJitterY = Math.max(0, (cellH - cardH) / 2 - 4);
 
     cards.forEach((card, idx) => {
       const col = idx % cols;
       const row = Math.floor(idx / cols);
 
-      const jitterX = (Math.random() - 0.5) * (cellW * 0.4);
-      const jitterY = (Math.random() - 0.5) * (cellH * 0.4);
-      const posX = Math.max(pad, Math.min(deskW - cardW - pad, pad + col * cellW + jitterX + 8));
-      const posY = Math.max(pad, Math.min(deskH - cardH - pad, pad + row * cellH + jitterY + 8));
-      const randomRot = (Math.random() - 0.5) * 26; // -13deg to +13deg
+      const jitterX = (Math.random() - 0.5) * 2 * maxJitterX;
+      const jitterY = (Math.random() - 0.5) * 2 * maxJitterY;
+
+      const posX = Math.max(pad, Math.min(deskW - cardW - pad, pad + col * cellW + (cellW - cardW) / 2 + jitterX));
+      const posY = Math.max(pad, Math.min(deskH - cardH - pad, pad + row * cellH + (cellH - cardH) / 2 + jitterY));
+      const randomRot = (Math.random() - 0.5) * 22; // -11deg to +11deg
 
       card.style.position = 'absolute';
       card.style.left = `${posX}px`;
@@ -78,8 +83,10 @@ export class DragDropEngine {
     monsterEl.style.touchAction = 'none'; // Prevent scroll while dragging
 
     const onPointerDown = (e) => {
-      // Only single touch / primary mouse button
+      // Only single touch / primary mouse button; not if already dragging something
       if (this.isDragging || (e.button !== undefined && e.button !== 0)) return;
+      // Don't pick up already placed cards
+      if (monsterEl.classList.contains('is-placed')) return;
       e.preventDefault();
 
       // Audio context unlock & tactile paper grab
@@ -102,7 +109,7 @@ export class DragDropEngine {
       // Start looping phonics chant!
       audioEngine.startPhonicsChant(letter);
 
-      // Generate a slight random rotation to simulate physical paper being picked up by hand (-6deg to +6deg)
+      // Generate a slight random rotation to simulate physical paper being picked up by hand
       this.pickupAngle = (Math.random() - 0.5) * 12;
 
       // Create animated floating drag ghost with paper-lifted physics
@@ -131,26 +138,41 @@ export class DragDropEngine {
         this.checkSlotProximity(moveEvt.clientX, moveEvt.clientY, letter);
       };
 
-      const onPointerUp = (upEvt) => {
-        if (upEvt.pointerId !== this.activePointerId) return;
+      const cleanup = (upEvt) => {
+        if (upEvt && upEvt.pointerId !== this.activePointerId) return;
         this.isDragging = false;
-        monsterEl.releasePointerCapture(upEvt.pointerId);
+
+        try { monsterEl.releasePointerCapture(this.activePointerId); } catch (_) {}
         monsterEl.removeEventListener('pointermove', onPointerMove);
-        monsterEl.removeEventListener('pointerup', onPointerUp);
-        monsterEl.removeEventListener('pointercancel', onPointerUp);
+        monsterEl.removeEventListener('pointerup', cleanup);
+        monsterEl.removeEventListener('pointercancel', cleanup);
 
         // Stop continuous chanting
         audioEngine.stopPhonicsChant();
 
-        this.handleDrop(upEvt.clientX, upEvt.clientY, letter, monsterEl);
+        // Clear slot highlights
+        this.targetSlots.forEach(s => s.el.classList.remove('slot-hover-snap'));
+
+        if (upEvt) {
+          this.handleDrop(upEvt.clientX, upEvt.clientY, letter, monsterEl);
+        } else {
+          // Cancelled — restore card to tray
+          this._restoreCard(monsterEl);
+        }
       };
 
       monsterEl.addEventListener('pointermove', onPointerMove);
-      monsterEl.addEventListener('pointerup', onPointerUp);
-      monsterEl.addEventListener('pointercancel', onPointerUp);
+      monsterEl.addEventListener('pointerup', cleanup);
+      monsterEl.addEventListener('pointercancel', cleanup);
     };
 
     monsterEl.addEventListener('pointerdown', onPointerDown);
+  }
+
+  _restoreCard(monsterEl) {
+    if (this.dragGhost) { this.dragGhost.remove(); this.dragGhost = null; }
+    monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
+    monsterEl.style.visibility = 'visible';
   }
 
   createDragGhost(letter, x, y, initialAngle = 0) {
@@ -174,7 +196,7 @@ export class DragDropEngine {
 
   checkSlotProximity(clientX, clientY, letter) {
     let hoveredSlot = null;
-    const snapDistance = 75; // px
+    const snapDistance = 80; // px
 
     this.targetSlots.forEach(slot => {
       if (slot.isFilled) return;
@@ -183,18 +205,18 @@ export class DragDropEngine {
       const slotCenterY = rect.top + rect.height / 2;
       const dist = Math.hypot(clientX - slotCenterX, clientY - slotCenterY);
 
+      // Must match expected letter AND be close enough
       if (dist < snapDistance && slot.expectedLetter === letter) {
-        hoveredSlot = slot;
+        // If multiple unfilled slots share same letter, pick the closest
+        if (!hoveredSlot || dist < Math.hypot(clientX - (hoveredSlot.el.getBoundingClientRect().left + hoveredSlot.el.getBoundingClientRect().width / 2), clientY - (hoveredSlot.el.getBoundingClientRect().top + hoveredSlot.el.getBoundingClientRect().height / 2))) {
+          hoveredSlot = slot;
+        }
       }
     });
 
     // Update slot highlight visual
     this.targetSlots.forEach(slot => {
-      if (slot === hoveredSlot) {
-        slot.el.classList.add('slot-hover-snap');
-      } else {
-        slot.el.classList.remove('slot-hover-snap');
-      }
+      slot.el.classList.toggle('slot-hover-snap', slot === hoveredSlot);
     });
 
     this.activeSlot = hoveredSlot;
@@ -207,6 +229,7 @@ export class DragDropEngine {
     if (this.activeSlot && !this.activeSlot.isFilled && this.activeSlot.expectedLetter === letter) {
       // SUCCESSFUL SNAP! Stick paper to the target slot
       const targetSlot = this.activeSlot;
+      this.activeSlot = null;
       targetSlot.isFilled = true;
 
       // Animate ghost straight into slot center - paper sticking down to surface
@@ -222,9 +245,10 @@ export class DragDropEngine {
         this.dragGhost.style.top = `${targetY}px`;
         this.dragGhost.style.transform = 'translate(-50%, -50%) scale(1) rotate(0deg)';
 
+        const ghost = this.dragGhost;
         setTimeout(() => {
-          if (this.dragGhost) this.dragGhost.remove();
-          this.dragGhost = null;
+          ghost.remove();
+          if (this.dragGhost === ghost) this.dragGhost = null;
 
           // Fill the slot with the happy snapped monster sticker
           targetSlot.el.innerHTML = createMonsterSVG(letter, { state: 'snapped' });
@@ -243,11 +267,20 @@ export class DragDropEngine {
           // Check if word is fully completed
           this.checkWordCompletion();
         }, 200);
+      } else {
+        // Ghost was already removed (edge case) — still complete the slot
+        targetSlot.el.innerHTML = createMonsterSVG(letter, { state: 'snapped' });
+        targetSlot.el.classList.add('slot-filled', 'paper-stuck');
+        monsterEl.classList.add('is-placed');
+        monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
+        monsterEl.style.visibility = 'hidden';
+        audioEngine.playTapeSnap();
+        this.checkWordCompletion();
       }
     } else {
-      // FREE TO DRAG ANYWHERE!
-      // Letter lands right where the child dropped it on the play table (melatih motorik anak)
+      // FREE DROP — letter lands where the child released it on the play table
       audioEngine.playPaperLand();
+      this.activeSlot = null;
 
       const trayRect = this.trayEl.getBoundingClientRect();
       const cardW = monsterEl.offsetWidth || 76;
@@ -261,30 +294,30 @@ export class DragDropEngine {
       newY = Math.max(10, Math.min(trayRect.height - cardH - 10, newY));
       const dropRot = (Math.random() - 0.5) * 24; // natural resting paper angle
 
-      if (this.dragGhost) {
-        this.dragGhost.classList.remove('paper-drag-lifted', 'paper-lifted');
-        this.dragGhost.style.transition = 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)';
-        this.dragGhost.style.left = `${trayRect.left + newX + cardW / 2}px`;
-        this.dragGhost.style.top = `${trayRect.top + newY + cardH / 2}px`;
-        this.dragGhost.style.transform = `translate(-50%, -50%) scale(1) rotate(${dropRot}deg)`;
-
-        setTimeout(() => {
-          if (this.dragGhost) this.dragGhost.remove();
-          this.dragGhost = null;
-          monsterEl.style.position = 'absolute';
-          monsterEl.style.left = `${newX}px`;
-          monsterEl.style.top = `${newY}px`;
-          monsterEl.style.transform = `rotate(${dropRot}deg) scale(1)`;
-          monsterEl.style.visibility = 'visible';
-          monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
-        }, 180);
-      } else {
+      const applyPosition = () => {
         monsterEl.style.position = 'absolute';
         monsterEl.style.left = `${newX}px`;
         monsterEl.style.top = `${newY}px`;
         monsterEl.style.transform = `rotate(${dropRot}deg) scale(1)`;
         monsterEl.style.visibility = 'visible';
         monsterEl.classList.remove('is-being-dragged', 'paper-lifted');
+      };
+
+      if (this.dragGhost) {
+        const ghost = this.dragGhost;
+        this.dragGhost = null;
+        ghost.classList.remove('paper-drag-lifted', 'paper-lifted');
+        ghost.style.transition = 'all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1)';
+        ghost.style.left = `${trayRect.left + newX + cardW / 2}px`;
+        ghost.style.top = `${trayRect.top + newY + cardH / 2}px`;
+        ghost.style.transform = `translate(-50%, -50%) scale(1) rotate(${dropRot}deg)`;
+
+        setTimeout(() => {
+          ghost.remove();
+          applyPosition();
+        }, 180);
+      } else {
+        applyPosition();
       }
     }
   }
@@ -319,8 +352,11 @@ export class DragDropEngine {
   }
 
   checkWordCompletion() {
+    // Guard: only fire once per word
+    if (this._wordCompletionPending) return;
     const allFilled = this.targetSlots.length > 0 && this.targetSlots.every(s => s.isFilled);
     if (allFilled) {
+      this._wordCompletionPending = true;
       // Trigger word completion!
       setTimeout(() => {
         this.onWordCompleted();

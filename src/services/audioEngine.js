@@ -14,6 +14,7 @@ class AudioEngine {
     this.currentPlayingAudio = null;
     this.speechSynth = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
     this.idVoice = null;
+    this._speakGeneration = 0; // increments each call to abort stale sequences
     this.initVoices();
   }
 
@@ -589,6 +590,11 @@ class AudioEngine {
       return;
     }
 
+    // Increment generation so any previous in-progress sequence knows to abort
+    this._speakGeneration++;
+    const myGeneration = this._speakGeneration;
+    const isStale = () => myGeneration !== this._speakGeneration;
+
     this.isPlayingWordNarration = true;
     this.stopCurrentPlayingAudio();
     if (this.speechSynth) this.speechSynth.cancel();
@@ -597,9 +603,9 @@ class AudioEngine {
     let currentIndex = 0;
 
     const speakNextLetter = async () => {
-      if (this.isMuted) {
+      if (isStale() || this.isMuted) {
         this.isPlayingWordNarration = false;
-        if (onComplete) onComplete();
+        if (onComplete && !isStale()) onComplete();
         return;
       }
 
@@ -608,8 +614,11 @@ class AudioEngine {
         if (onLetterStep) onLetterStep(currentIndex);
 
         const hasCustomLetter = await audioStorage.hasAudio('letter_' + char);
+        if (isStale()) return;
+
         if (hasCustomLetter) {
           await this.playCustomAudio('letter_' + char);
+          if (isStale()) return;
           currentIndex++;
           setTimeout(speakNextLetter, 180);
         } else if (this.speechSynth) {
@@ -621,10 +630,12 @@ class AudioEngine {
           utter.rate = 1.1;
 
           utter.onend = () => {
+            if (isStale()) return;
             currentIndex++;
             setTimeout(speakNextLetter, 180);
           };
           utter.onerror = () => {
+            if (isStale()) return;
             currentIndex++;
             speakNextLetter();
           };
@@ -637,18 +648,23 @@ class AudioEngine {
       } else {
         // Step 2: Speak whole word triumphantly!
         setTimeout(async () => {
+          if (isStale()) return;
           if (onLetterStep) onLetterStep(-1); // reset highlights
           this.playWordCelebration();
 
           const hasCustomWord = await audioStorage.hasAudio('word_' + wordData.id);
+          if (isStale()) return;
+
           const proceedToMeaning = () => {
             // Step 3: Speak friendly meaning
             setTimeout(async () => {
+              if (isStale()) return;
               const hasCustomMeaning = await audioStorage.hasAudio('meaning_' + wordData.id);
+              if (isStale()) return;
               if (hasCustomMeaning) {
                 await this.playCustomAudio('meaning_' + wordData.id);
                 this.isPlayingWordNarration = false;
-                if (onComplete) onComplete();
+                if (onComplete && !isStale()) onComplete();
               } else if (this.speechSynth) {
                 const meaningUtter = new SpeechSynthesisUtterance(wordData.meaning);
                 meaningUtter.lang = 'id-ID';
@@ -658,24 +674,24 @@ class AudioEngine {
 
                 meaningUtter.onend = () => {
                   this.isPlayingWordNarration = false;
-                  if (onComplete) onComplete();
+                  if (onComplete && !isStale()) onComplete();
                 };
                 meaningUtter.onerror = () => {
                   this.isPlayingWordNarration = false;
-                  if (onComplete) onComplete();
+                  if (onComplete && !isStale()) onComplete();
                 };
 
                 this.speechSynth.speak(meaningUtter);
               } else {
                 this.isPlayingWordNarration = false;
-                if (onComplete) onComplete();
+                if (onComplete && !isStale()) onComplete();
               }
             }, 300);
           };
 
           if (hasCustomWord) {
             await this.playCustomAudio('word_' + wordData.id);
-            proceedToMeaning();
+            if (!isStale()) proceedToMeaning();
           } else if (this.speechSynth) {
             const wordUtter = new SpeechSynthesisUtterance(wordData.soundWord || wordData.word);
             wordUtter.lang = 'id-ID';
@@ -683,12 +699,8 @@ class AudioEngine {
             wordUtter.pitch = 1.3;
             wordUtter.rate = 0.95;
 
-            wordUtter.onend = () => {
-              proceedToMeaning();
-            };
-            wordUtter.onerror = () => {
-              proceedToMeaning();
-            };
+            wordUtter.onend = () => { if (!isStale()) proceedToMeaning(); };
+            wordUtter.onerror = () => { if (!isStale()) proceedToMeaning(); };
 
             this.speechSynth.speak(wordUtter);
           } else {
