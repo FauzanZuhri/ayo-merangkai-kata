@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Studio Rekaman Suara & Kelola Kata - Ayo Merangkai Kata</title>
+  <meta name="description" content="Halaman kelola kata dan rekam suara sendiri untuk orang tua dan guru dalam aplikasi Ayo Merangkai Kata.">
+
+  <!-- Google Fonts: Balsamiq Sans & Patrick Hand -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&family=Patrick+Hand&display=swap" rel="stylesheet">
+
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎙️</text></svg>">
+</head>
+<body class="admin-body">
+
+  <!-- Parental Lock Screen (Hidden if session is unlocked) -->
+  <div id="admin-lock-screen" class="modal-backdrop" style="background: var(--admin-bg); z-index: 10000;">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 420px; text-align: center; border-radius: 24px;">
+      <a href="/" class="btn-paper" style="position: absolute; top: 1rem; left: 1rem; padding: 0.35rem 0.75rem; font-size: 0.9rem;" title="Kembali ke Permainan">
+        <span>🎮</span>
+        <span>Game</span>
+      </a>
+      <div style="font-size: 3rem; margin: 1rem 0 0.25rem;">🔐</div>
+      <h2 class="modal-title" style="font-size: 1.45rem;">Pintu Masuk Rahasia</h2>
+      <p class="modal-subtitle" style="font-size: 0.92rem; margin-bottom: 1.25rem;">
+        Khusus Orang Tua & Guru. Masukkan PIN atau jawab pertanyaan matematika:
+      </p>
+
+      <div style="background: #FFF9DB; border: 2.5px dashed #2B2D42; border-radius: 14px; padding: 0.85rem; margin-bottom: 1rem;">
+        <div style="font-size: 0.82rem; font-weight: 700; color: #856404; text-transform: uppercase;">Pertanyaan Matematika:</div>
+        <div id="admin-challenge-text" style="font-family: 'Balsamiq Sans', cursive, sans-serif; font-size: 1.6rem; font-weight: 700; margin-top: 0.25rem;">6 × 7 = ?</div>
+      </div>
+
+      <form id="admin-lock-form" style="display: flex; flex-direction: column; gap: 0.85rem;">
+        <input type="text" id="admin-lock-input" class="search-input" style="text-align: center; font-size: 1.5rem; font-weight: 700; letter-spacing: 2px;" placeholder="Jawaban / PIN" autocomplete="off" required autofocus>
+        <button type="submit" class="btn-paper btn-paper-primary" style="justify-content: center; padding: 0.85rem; font-size: 1.1rem;">
+          <span>🔓</span>
+          <span>Buka Studio</span>
+        </button>
+        <div style="font-size: 0.82rem; color: #8E9AAF;">PIN Bawaan: <strong>1234</strong></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="admin-header">
+    <div class="admin-header-content">
+      <div class="admin-brand">
+        <div class="admin-brand-icon" aria-hidden="true">🎙️</div>
+        <div>
+          <h1 class="admin-title">Studio Suara & Kelola Kata</h1>
+          <div class="admin-subtitle">Rekam suara Ayah/Ibu/Guru & atur kata bermain anak</div>
+        </div>
+      </div>
+
+      <div class="admin-header-actions">
+        <a href="/" class="btn-paper" id="btn-back-to-game">
+          <span>🎮</span>
+          <span>Main Game</span>
+        </a>
+        <button class="btn-paper btn-paper-accent" id="btn-open-phonics">
+          <span>🔤</span>
+          <span>Fonik Huruf A-Z</span>
+        </button>
+        <button class="btn-paper btn-paper-primary" id="btn-add-word">
+          <span>➕</span>
+          <span>Tambah Kata</span>
+        </button>
+        <button class="btn-paper" id="btn-open-backup" title="Cadangkan atau Pulihkan Data">
+          <span>💾</span>
+          <span>Cadangan</span>
+        </button>
+        <button class="btn-paper" id="btn-lock-session" title="Kunci Kembali Halaman Ini" style="color: #495057;">
+          <span>🔒</span>
+          <span>Kunci</span>
+        </button>
+      </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="admin-main">
+
+    <!-- Stats Ribbon -->
+    <section class="admin-stats-ribbon">
+      <div class="stat-card">
+        <span class="stat-icon">📚</span>
+        <div>
+          <div class="stat-num" id="stat-total-words">0</div>
+          <div class="stat-label">Total Kata Aktif</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🗣️</span>
+        <div>
+          <div class="stat-num" id="stat-recorded-words">0</div>
+          <div class="stat-label">Kata Bersuara Rekaman</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">📖</span>
+        <div>
+          <div class="stat-num" id="stat-recorded-meanings">0</div>
+          <div class="stat-label">Cerita Bersuara Rekaman</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🔤</span>
+        <div>
+          <div class="stat-num" id="stat-recorded-phonics">0</div>
+          <div class="stat-label">Fonik Huruf Rekaman</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toolbar: Search & Filter -->
+    <section class="admin-toolbar">
+      <div class="toolbar-left">
+        <input type="text" id="filter-search" class="search-input" placeholder="🔍 Cari nama kata...">
+        <select id="filter-category" class="filter-select">
+          <option value="all">Semua Kategori</option>
+          <option value="Hewan">🐱 Hewan</option>
+          <option value="Buah & Makanan">🍎 Buah & Makanan</option>
+          <option value="Benda">⚽ Benda</option>
+          <option value="Alam">☁️ Alam</option>
+        </select>
+        <select id="filter-voice-status" class="filter-select">
+          <option value="all">Semua Status Suara</option>
+          <option value="has-recording">Hanya Yang Sudah Direkam</option>
+          <option value="needs-recording">Belum Direkam (Default)</option>
+        </select>
+      </div>
+      <div class="toolbar-right">
+        <span id="filtered-count-badge" class="word-category-badge">Menampilkan 0 kata</span>
+      </div>
+    </section>
+
+    <!-- Words Grid -->
+    <section class="words-grid" id="words-container" role="region" aria-label="Daftar Kartu Kata">
+      <!-- Dynamically injected word cards -->
+    </section>
+
+  </main>
+
+  <!-- ==========================================================
+       MODAL 1: INTERACTIVE VOICE RECORDING STUDIO
+       ========================================================== -->
+  <div class="modal-backdrop hidden" id="modal-record-studio" role="dialog" aria-modal="true">
+    <div class="studio-modal-box animate-pop-in">
+      <button class="modal-close-btn" id="btn-close-studio" aria-label="Tutup Studio">✕</button>
+
+      <h2 class="modal-title" id="studio-word-title">🎙️ Studio Rekaman: KUCING</h2>
+      <p class="modal-subtitle">Rekam suara hangat Anda agar anak senang belajar dari suara orang tersayang!</p>
+
+      <!-- Step / Target Switcher -->
+      <div class="record-type-tabs">
+        <button class="tab-btn active" id="tab-record-word" data-type="word">
+          🗣️ 1. Suara Sebut Kata
+        </button>
+        <button class="tab-btn" id="tab-record-meaning" data-type="meaning">
+          📖 2. Suara Cerita / Arti
+        </button>
+      </div>
+
+      <!-- Prompt Guide Card -->
+      <div class="prompt-card">
+        <div class="prompt-label" id="studio-prompt-label">Contoh yang Diucapkan:</div>
+        <div class="prompt-phrase" id="studio-prompt-phrase">"Kucing!"</div>
+        <div class="prompt-hint" id="studio-prompt-hint">Ucapkan dengan riang dan jelas satu kali.</div>
+      </div>
+
+      <!-- Live Waveform Visualizer & Timer -->
+      <div class="visualizer-container">
+        <div class="waveform-bars" id="waveform-bars">
+          <!-- 16 Animated Bars -->
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+          <div class="waveform-bar"></div>
+        </div>
+        <div class="record-timer" id="record-timer">00:00</div>
+        <div class="record-indicator hidden" id="record-indicator">
+          <span class="pulse-red-dot"></span>
+          <span>Sedang merekam suara Anda...</span>
+        </div>
+      </div>
+
+      <!-- Studio Action Buttons -->
+      <div class="studio-actions-grid">
+        <div class="studio-main-btns">
+          <button class="btn-paper btn-paper-primary btn-record-large" id="btn-toggle-record">
+            <span id="record-btn-icon">🔴</span>
+            <span id="record-btn-label">Mulai Rekam Suara</span>
+          </button>
+          <button class="btn-paper btn-paper-success" id="btn-play-preview" style="display: none;">
+            <span>▶️</span>
+            <span>Tes Dengar</span>
+          </button>
+        </div>
+
+        <button class="btn-paper btn-paper-success" id="btn-save-recording" style="display: none; justify-content: center; font-size: 1.1rem; padding: 0.8rem;">
+          <span>💾</span>
+          <span>Simpan Suara Ini ke Game</span>
+        </button>
+
+        <div class="file-upload-divider">
+          <span>ATAU UNGGAH FILE SUARA</span>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; justify-content: center;">
+          <input type="file" id="audio-file-input" accept="audio/*" style="display: none;">
+          <button class="btn-paper" id="btn-upload-file" style="font-size: 0.9rem;">
+            <span>📁</span>
+            <span>Unggah File Audio (.mp3, .wav, .m4a)</span>
+          </button>
+          <button class="btn-paper" id="btn-delete-recording" style="display: none; color: #FA5252; font-size: 0.9rem;">
+            <span>🗑️</span>
+            <span>Hapus Suara Saya</span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 2: PHONICS A-Z VOICE STUDIO
+       ========================================================== -->
+  <div class="modal-backdrop hidden" id="modal-phonics-studio" role="dialog" aria-modal="true">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 640px;">
+      <button class="modal-close-btn" id="btn-close-phonics" aria-label="Tutup Studio Fonik">✕</button>
+
+      <h2 class="modal-title">🔤 Rekam Suara Fonik Huruf A - Z</h2>
+      <p class="modal-subtitle">Sentuh salah satu huruf untuk merekam bunyi fonik dengan suara Anda sendiri!</p>
+
+      <div class="phonics-letters-grid" id="phonics-grid">
+        <!-- Injected 26 letter cards -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 3: ADD / EDIT WORD
+       ========================================================== -->
+  <div class="modal-backdrop hidden" id="modal-word-editor" role="dialog" aria-modal="true">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 520px;">
+      <button class="modal-close-btn" id="btn-close-editor" aria-label="Tutup Form">✕</button>
+
+      <h2 class="modal-title" id="word-editor-title">➕ Tambah Kata Baru</h2>
+      <p class="modal-subtitle">Tambahkan kosakata baru untuk dimainkan anak-anak.</p>
+
+      <form id="word-editor-form" style="display: flex; flex-direction: column; gap: 0.85rem;">
+        <input type="hidden" id="edit-word-id">
+
+        <div>
+          <label style="font-weight: 700; display: block; margin-bottom: 0.25rem;">Kata Target (Huruf Kapital):</label>
+          <input type="text" id="edit-word-name" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Contoh: GAJAH, JERUK, MEJA" required>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; display: block; margin-bottom: 0.25rem;">Kategori:</label>
+          <input type="text" id="edit-word-category" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Contoh: 🐘 Hewan, 🍊 Buah, 🪑 Benda" required>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; display: block; margin-bottom: 0.25rem;">Petunjuk Singkat (*Sticky Note*):</label>
+          <input type="text" id="edit-word-hint" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Contoh: Hewan besar yang punya belalai" required>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; display: block; margin-bottom: 0.25rem;">Arti / Cerita Lengkap:</label>
+          <textarea id="edit-word-meaning" class="search-input" style="width: 100%; box-sizing: border-box; min-height: 70px; resize: vertical;" placeholder="Contoh: Gajah adalah hewan darat terbesar yang ramah dan suka makan rumput!"></textarea>
+        </div>
+
+        <div>
+          <label style="font-weight: 700; display: block; margin-bottom: 0.25rem;">Gambar Stiker (URL Gambar):</label>
+          <input type="text" id="edit-word-image" class="search-input" style="width: 100%; box-sizing: border-box;" placeholder="Opsional: /images/words/nama.jpg atau link gambar">
+        </div>
+
+        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+          <button type="submit" class="btn-paper btn-paper-primary" style="flex: 1; justify-content: center; padding: 0.75rem;">
+            <span>💾</span>
+            <span>Simpan Kata</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       MODAL 4: BACKUP & RESTORE
+       ========================================================== -->
+  <div class="modal-backdrop hidden" id="modal-backup" role="dialog" aria-modal="true">
+    <div class="studio-modal-box animate-pop-in" style="max-width: 500px;">
+      <button class="modal-close-btn" id="btn-close-backup" aria-label="Tutup Modal Cadangan">✕</button>
+
+      <h2 class="modal-title">💾 Cadangan & Pulihkan Data</h2>
+      <p class="modal-subtitle">Simpan seluruh kata dan rekaman suara Anda ke file agar tidak hilang.</p>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <div style="background: #EBFBEE; border: 2px solid #51CF66; border-radius: 14px; padding: 1rem;">
+          <h3 style="margin: 0 0 0.4rem; font-size: 1.15rem;">📥 Unduh Cadangan</h3>
+          <p style="margin: 0 0 0.75rem; font-size: 0.92rem; color: #2B8A3E;">Ekspor seluruh kata buatan Anda beserta file rekaman suara ke berkas cadangan JSON.</p>
+          <button class="btn-paper btn-paper-success" id="btn-download-backup" style="width: 100%; justify-content: center;">
+            <span>📥</span>
+            <span>Unduh Cadangan Lengkap (.json)</span>
+          </button>
+        </div>
+
+        <div style="background: #FFF9DB; border: 2px solid #F59F00; border-radius: 14px; padding: 1rem;">
+          <h3 style="margin: 0 0 0.4rem; font-size: 1.15rem;">📤 Pulihkan dari Cadangan</h3>
+          <p style="margin: 0 0 0.75rem; font-size: 0.92rem; color: #E67700;">Impor berkas cadangan JSON yang sebelumnya pernah diunduh.</p>
+          <input type="file" id="backup-file-input" accept=".json" style="display: none;">
+          <button class="btn-paper btn-paper-accent" id="btn-trigger-restore" style="width: 100%; justify-content: center;">
+            <span>📤</span>
+            <span>Pilih Berkas Cadangan</span>
+          </button>
+        </div>
+
+        <div style="border-top: 2px dashed #CED4DA; padding-top: 1rem; text-align: center;">
+          <button class="btn-paper" id="btn-reset-defaults" style="color: #E03131; border-color: #FA5252; background: #FFF5F5;">
+            <span>🔄</span>
+            <span>Kembalikan Semua ke Bawaan Sistem</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>

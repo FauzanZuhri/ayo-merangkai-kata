@@ -1,7 +1,8 @@
 // Main Application Orchestrator for Monster Phonics
 import './style.css';
-import { WORDS_DATABASE } from './data/words.js';
+import { wordRepository } from './services/wordRepository.js';
 import { audioEngine } from './services/audioEngine.js';
+import { parentalLock } from './services/parentalLock.js';
 import { createMonsterElement, createMonsterSVG } from './components/monsterFactory.js';
 import { DragDropEngine } from './components/dragDropEngine.js';
 import { VignetteTheater } from './components/vignetteTheater.js';
@@ -19,12 +20,18 @@ class MonsterPhonicsApp {
     this.initDOM();
     this.initEngines();
     this.bindGlobalEvents();
+    this.startApp();
+  }
+
+  async startApp() {
+    await wordRepository.init();
     this.loadWord(this.currentWordIndex);
   }
 
   initDOM() {
     this.categoryBadgeEl = document.getElementById('mission-category');
     this.hintTextEl = document.getElementById('mission-hint');
+    this.hintBoxEl = document.querySelector('.mission-hint-box');
     this.targetFrameEl = document.getElementById('target-word-frame');
     this.trayEl = document.getElementById('monster-tray');
     this.btnPrevWord = document.getElementById('btn-prev-word');
@@ -34,9 +41,21 @@ class MonsterPhonicsApp {
     this.btnStickers = document.getElementById('btn-open-stickers');
     this.theaterContainerEl = document.getElementById('vignette-theater-container');
     this.stickerBookContainerEl = document.getElementById('sticker-book-container');
+
+    // Secret Parental Gate Elements
+    this.brandBadgeEl = document.querySelector('.brand-badge');
+    this.parentalGateModal = document.getElementById('parental-gate-modal');
+    this.parentalChallengeText = document.getElementById('parental-challenge-text');
+    this.parentalGateInput = document.getElementById('parental-gate-input');
+    this.parentalGateForm = document.getElementById('parental-gate-form');
+    this.btnCloseParentalGate = document.getElementById('btn-close-parental-gate');
   }
 
   initEngines() {
+    this.stickerBook = new StickerBook({
+      containerEl: this.stickerBookContainerEl
+    });
+
     this.dragDropEngine = new DragDropEngine({
       targetBoardEl: this.targetFrameEl,
       trayEl: this.trayEl,
@@ -45,12 +64,10 @@ class MonsterPhonicsApp {
 
     this.vignetteTheater = new VignetteTheater({
       containerEl: this.theaterContainerEl,
+      stickerBook: this.stickerBook,
       onNextWord: () => this.nextWord(),
+      onOpenStickerBook: () => this.stickerBook.show(),
       onSaveSticker: (id) => this.stickerBook.saveCompletedWord(id)
-    });
-
-    this.stickerBook = new StickerBook({
-      containerEl: this.stickerBookContainerEl
     });
   }
 
@@ -72,10 +89,31 @@ class MonsterPhonicsApp {
       this.nextWord();
     });
 
+    // Touch Hint Box to listen to phonics/word audio
+    if (this.hintBoxEl) {
+      this.hintBoxEl.style.cursor = 'pointer';
+      this.hintBoxEl.setAttribute('title', 'Sentuh untuk dengarkan bunyi kata!');
+      this.hintBoxEl.addEventListener('click', () => {
+        audioEngine.playGrab();
+        if (this.currentWordData) {
+          audioEngine.speakWordSequence(this.currentWordData);
+        }
+      });
+    }
+
     // Open Sticker Book
     this.btnStickers.addEventListener('click', () => {
       audioEngine.playGrab();
       this.stickerBook.show();
+    });
+
+    // Re-scatter on window resize / mobile device orientation change
+    let resizeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        this.dragDropEngine.scatterLetters();
+      }, 150);
     });
 
     // First user gesture audio context unlock
@@ -84,16 +122,81 @@ class MonsterPhonicsApp {
       window.removeEventListener('pointerdown', unlockAudio);
     };
     window.addEventListener('pointerdown', unlockAudio);
+
+    // Secret Parental Gate Gestures on Brand Logo (Quad tap or 1.8s long-press)
+    let tapCount = 0;
+    let tapResetTimer = null;
+    let longPressTimer = null;
+
+    const openParentalGate = () => {
+      audioEngine.playGrab();
+      const challenge = parentalLock.generateChallenge();
+      this.parentalChallengeText.textContent = challenge.question;
+      this.parentalGateInput.value = '';
+      this.parentalGateModal.classList.remove('hidden');
+      setTimeout(() => this.parentalGateInput.focus(), 150);
+    };
+
+    if (this.brandBadgeEl) {
+      this.brandBadgeEl.style.userSelect = 'none';
+
+      // 1. Secret multiple taps (4 taps within 1.5 seconds)
+      this.brandBadgeEl.addEventListener('click', () => {
+        tapCount++;
+        clearTimeout(tapResetTimer);
+        if (tapCount >= 4) {
+          tapCount = 0;
+          openParentalGate();
+        } else {
+          tapResetTimer = setTimeout(() => { tapCount = 0; }, 1500);
+        }
+      });
+
+      // 2. Secret long-press (Hold logo for 1.8 seconds)
+      this.brandBadgeEl.addEventListener('pointerdown', () => {
+        longPressTimer = setTimeout(() => {
+          openParentalGate();
+        }, 1800);
+      });
+      const cancelLongPress = () => clearTimeout(longPressTimer);
+      this.brandBadgeEl.addEventListener('pointerup', cancelLongPress);
+      this.brandBadgeEl.addEventListener('pointercancel', cancelLongPress);
+      this.brandBadgeEl.addEventListener('pointerleave', cancelLongPress);
+    }
+
+    if (this.btnCloseParentalGate) {
+      this.btnCloseParentalGate.addEventListener('click', () => {
+        this.parentalGateModal.classList.add('hidden');
+      });
+    }
+
+    if (this.parentalGateForm) {
+      this.parentalGateForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const ans = this.parentalGateInput.value;
+        if (parentalLock.verify(ans)) {
+          window.location.href = '/admin';
+        } else {
+          this.parentalGateInput.style.borderColor = '#FA5252';
+          this.parentalGateInput.value = '';
+          const newChallenge = parentalLock.generateChallenge();
+          this.parentalChallengeText.textContent = newChallenge.question;
+          alert('Jawaban atau PIN belum tepat. Silakan coba lagi.');
+        }
+      });
+    }
   }
 
   loadWord(index) {
-    if (index < 0) index = WORDS_DATABASE.length - 1;
-    if (index >= WORDS_DATABASE.length) index = 0;
+    const words = wordRepository.getWords();
+    if (!words || words.length === 0) return;
+    if (index < 0) index = words.length - 1;
+    if (index >= words.length) index = 0;
     this.currentWordIndex = index;
-    const wordData = WORDS_DATABASE[this.currentWordIndex];
+    const wordData = words[this.currentWordIndex];
     this.currentWordData = wordData;
 
-    // Update Header & Hint
+    // Update Header & Hint (Image will only appear in the celebration modal & sticker album!)
     this.categoryBadgeEl.textContent = wordData.category;
     this.hintTextEl.textContent = wordData.hint;
 
@@ -142,6 +245,11 @@ class MonsterPhonicsApp {
       // Attach Drag & Drop with Phonics chanting
       this.dragDropEngine.attachMonster(monsterCard, item.char);
     });
+
+    // Scatter letters organically across the play table (melatih motorik anak)
+    setTimeout(() => {
+      this.dragDropEngine.scatterLetters();
+    }, 60);
   }
 
   nextWord() {
@@ -153,6 +261,9 @@ class MonsterPhonicsApp {
   }
 
   handleWordCompleted() {
+    // Capture the word index at time of completion to guard against user navigating away
+    const completedIndex = this.currentWordIndex;
+
     // 1. Victory wave on all slots
     this.slots.forEach(slot => {
       if (slot.el) {
@@ -162,8 +273,9 @@ class MonsterPhonicsApp {
 
     audioEngine.playWordCelebration();
 
-    // 2. Open Vignette Theater after celebratory beat
+    // 2. Open Vignette Theater after celebratory beat — only if still on same word
     setTimeout(() => {
+      if (this.currentWordIndex !== completedIndex) return;
       this.vignetteTheater.show(this.currentWordData);
     }, 600);
   }

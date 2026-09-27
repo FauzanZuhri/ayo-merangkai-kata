@@ -3,6 +3,7 @@
 // Pronounces words and continuous phonics chants via Web Speech API
 
 import { LETTER_PHONICS_MAP } from '../data/words.js';
+import { audioStorage } from './audioStorage.js';
 
 class AudioEngine {
   constructor() {
@@ -10,8 +11,10 @@ class AudioEngine {
     this.isMuted = false;
     this.phonicsInterval = null;
     this.currentChantingLetter = null;
+    this.currentPlayingAudio = null;
     this.speechSynth = typeof window !== 'undefined' && 'speechSynthesis' in window ? window.speechSynthesis : null;
     this.idVoice = null;
+    this._speakGeneration = 0; // increments each call to abort stale sequences
     this.initVoices();
   }
 
@@ -46,34 +49,195 @@ class AudioEngine {
     this.isMuted = !this.isMuted;
     if (this.isMuted) {
       this.stopPhonicsChant();
+      this.stopCurrentPlayingAudio();
       if (this.speechSynth) this.speechSynth.cancel();
     }
     return this.isMuted;
   }
 
+  stopCurrentPlayingAudio() {
+    if (this.currentPlayingAudio) {
+      try {
+        this.currentPlayingAudio.pause();
+        this.currentPlayingAudio.currentTime = 0;
+      } catch (e) {}
+      this.currentPlayingAudio = null;
+    }
+  }
+
+  async playCustomAudio(key) {
+    if (this.isMuted) return false;
+    try {
+      const blob = await audioStorage.getAudio(key);
+      if (!blob) return false;
+
+      return new Promise((resolve) => {
+        this.stopCurrentPlayingAudio();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        this.currentPlayingAudio = audio;
+
+        audio.onended = () => {
+          URL.revokeObjectURL(url);
+          if (this.currentPlayingAudio === audio) {
+            this.currentPlayingAudio = null;
+          }
+          resolve(true);
+        };
+
+        audio.onerror = () => {
+          URL.revokeObjectURL(url);
+          if (this.currentPlayingAudio === audio) {
+            this.currentPlayingAudio = null;
+          }
+          resolve(false);
+        };
+
+        audio.play().catch(() => {
+          URL.revokeObjectURL(url);
+          resolve(false);
+        });
+      });
+    } catch (e) {
+      return false;
+    }
+  }
+
+  triggerHaptic(duration = 20) {
+    if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+      try {
+        navigator.vibrate(duration);
+      } catch (e) {}
+    }
+  }
+
   // --- Web Audio SFX ---
 
-  playGrab() {
+  // Realistic Paper Grab (crinkle / flutter noise + rising pitch pop)
+  playPaperGrab() {
+    this.triggerHaptic(18);
     if (this.isMuted) return;
     this.ensureContext();
     if (!this.ctx) return;
 
-    const osc = this.ctx.createOscillator();
-    const gain = this.ctx.createGain();
     const now = this.ctx.currentTime;
 
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(220, now);
-    osc.frequency.exponentialRampToValueAtTime(560, now + 0.12);
+    // 1. Noise burst for paper friction
+    const bufferSize = Math.floor(this.ctx.sampleRate * 0.08);
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.3));
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.frequency.setValueAtTime(2400, now);
+    filter.Q.value = 1.2;
 
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.25, now);
+    noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+    noise.start(now);
+
+    // 2. Playful tactile pop
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(280, now);
+    osc.frequency.exponentialRampToValueAtTime(620, now + 0.09);
+
+    gain.gain.setValueAtTime(0.22, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
 
     osc.connect(gain);
     gain.connect(this.ctx.destination);
-
     osc.start(now);
-    osc.stop(now + 0.15);
+    osc.stop(now + 0.1);
+  }
+
+  // Soft Paper Landing (thud on wooden desk)
+  playPaperLand() {
+    this.triggerHaptic(12);
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(180, now);
+    osc.frequency.exponentialRampToValueAtTime(75, now + 0.12);
+
+    gain.gain.setValueAtTime(0.28, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.13);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.13);
+  }
+
+  // Sticky Tape / Paper Snap (sticking into target slot)
+  playTapeSnap() {
+    this.triggerHaptic(28);
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+
+    // High snap click
+    const osc1 = this.ctx.createOscillator();
+    const gain1 = this.ctx.createGain();
+    osc1.type = 'square';
+    osc1.frequency.setValueAtTime(1200, now);
+    osc1.frequency.exponentialRampToValueAtTime(220, now + 0.06);
+
+    gain1.gain.setValueAtTime(0.3, now);
+    gain1.gain.exponentialRampToValueAtTime(0.001, now + 0.07);
+    osc1.connect(gain1);
+    gain1.connect(this.ctx.destination);
+    osc1.start(now);
+    osc1.stop(now + 0.07);
+
+    // Warm resonant snap chord
+    this.playSnap();
+  }
+
+  // Peel and Stick sound (for diorama sticker interactions)
+  playPeelStick() {
+    this.triggerHaptic(22);
+    if (this.isMuted) return;
+    this.ensureContext();
+    if (!this.ctx) return;
+
+    const now = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(450, now);
+    osc.frequency.exponentialRampToValueAtTime(980, now + 0.08);
+
+    gain.gain.setValueAtTime(0.25, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.12);
+  }
+
+  playGrab() {
+    this.playPaperGrab();
   }
 
   playDropReturn() {
@@ -280,6 +444,52 @@ class AudioEngine {
         });
         break;
       }
+      case 'quack': {
+        // Duck quack (nasal filtered sawtooth)
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, now);
+        osc.frequency.linearRampToValueAtTime(240, now + 0.18);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.value = 900;
+        filter.Q.value = 3;
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.2);
+        break;
+      }
+      case 'roar': {
+        // Lion playful cartoon roar
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(120, now);
+        osc.frequency.linearRampToValueAtTime(160, now + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(80, now + 0.4);
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 600;
+
+        gain.gain.setValueAtTime(0.3, now);
+        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.42);
+
+        osc.connect(filter);
+        filter.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.42);
+        break;
+      }
       case 'twinkle':
       default: {
         // Sparkling fairy chimes
@@ -311,8 +521,14 @@ class AudioEngine {
     this.currentChantingLetter = letter.toUpperCase();
     const info = LETTER_PHONICS_MAP[this.currentChantingLetter] || { chant: letter, sound: letter };
 
-    const playOneChant = () => {
+    const playOneChant = async () => {
       if (this.isMuted || !this.currentChantingLetter) return;
+
+      const hasCustom = await audioStorage.hasAudio('letter_' + this.currentChantingLetter);
+      if (hasCustom) {
+        this.playCustomAudio('letter_' + this.currentChantingLetter);
+        return;
+      }
 
       // 1. Cute melodic chirp via Web Audio
       if (this.ctx) {
@@ -368,80 +584,128 @@ class AudioEngine {
 
   // --- Word Phonics Spelling & Definition Reading ---
 
-  speakWordSequence(wordData, onLetterStep, onComplete) {
-    if (this.isMuted || !this.speechSynth) {
+  async speakWordSequence(wordData, onLetterStep, onComplete) {
+    if (this.isMuted) {
       if (onComplete) setTimeout(onComplete, 800);
       return;
     }
 
+    // Increment generation so any previous in-progress sequence knows to abort
+    this._speakGeneration++;
+    const myGeneration = this._speakGeneration;
+    const isStale = () => myGeneration !== this._speakGeneration;
+
     this.isPlayingWordNarration = true;
-    this.speechSynth.cancel();
+    this.stopCurrentPlayingAudio();
+    if (this.speechSynth) this.speechSynth.cancel();
 
     const letters = wordData.word.split('');
     let currentIndex = 0;
 
-    const speakNextLetter = () => {
+    const speakNextLetter = async () => {
+      if (isStale() || this.isMuted) {
+        this.isPlayingWordNarration = false;
+        if (onComplete && !isStale()) onComplete();
+        return;
+      }
+
       if (currentIndex < letters.length) {
         const char = letters[currentIndex];
         if (onLetterStep) onLetterStep(currentIndex);
 
-        const info = LETTER_PHONICS_MAP[char] || { sound: char };
-        const utter = new SpeechSynthesisUtterance(info.sound);
-        utter.lang = 'id-ID';
-        if (this.idVoice) utter.voice = this.idVoice;
-        utter.pitch = 1.4;
-        utter.rate = 1.1;
+        const hasCustomLetter = await audioStorage.hasAudio('letter_' + char);
+        if (isStale()) return;
 
-        utter.onend = () => {
+        if (hasCustomLetter) {
+          await this.playCustomAudio('letter_' + char);
+          if (isStale()) return;
           currentIndex++;
           setTimeout(speakNextLetter, 180);
-        };
-        utter.onerror = () => {
-          currentIndex++;
-          speakNextLetter();
-        };
+        } else if (this.speechSynth) {
+          const info = LETTER_PHONICS_MAP[char] || { sound: char };
+          const utter = new SpeechSynthesisUtterance(info.sound);
+          utter.lang = 'id-ID';
+          if (this.idVoice) utter.voice = this.idVoice;
+          utter.pitch = 1.4;
+          utter.rate = 1.1;
 
-        this.speechSynth.speak(utter);
+          utter.onend = () => {
+            if (isStale()) return;
+            currentIndex++;
+            setTimeout(speakNextLetter, 180);
+          };
+          utter.onerror = () => {
+            if (isStale()) return;
+            currentIndex++;
+            speakNextLetter();
+          };
+
+          this.speechSynth.speak(utter);
+        } else {
+          currentIndex++;
+          setTimeout(speakNextLetter, 250);
+        }
       } else {
         // Step 2: Speak whole word triumphantly!
-        setTimeout(() => {
+        setTimeout(async () => {
+          if (isStale()) return;
           if (onLetterStep) onLetterStep(-1); // reset highlights
           this.playWordCelebration();
 
-          const wordUtter = new SpeechSynthesisUtterance(wordData.soundWord || wordData.word);
-          wordUtter.lang = 'id-ID';
-          if (this.idVoice) wordUtter.voice = this.idVoice;
-          wordUtter.pitch = 1.3;
-          wordUtter.rate = 0.95;
+          const hasCustomWord = await audioStorage.hasAudio('word_' + wordData.id);
+          if (isStale()) return;
 
-          wordUtter.onend = () => {
+          const proceedToMeaning = () => {
             // Step 3: Speak friendly meaning
-            setTimeout(() => {
-              const meaningUtter = new SpeechSynthesisUtterance(wordData.meaning);
-              meaningUtter.lang = 'id-ID';
-              if (this.idVoice) meaningUtter.voice = this.idVoice;
-              meaningUtter.pitch = 1.15;
-              meaningUtter.rate = 1.0;
-
-              meaningUtter.onend = () => {
+            setTimeout(async () => {
+              if (isStale()) return;
+              const hasCustomMeaning = await audioStorage.hasAudio('meaning_' + wordData.id);
+              if (isStale()) return;
+              if (hasCustomMeaning) {
+                await this.playCustomAudio('meaning_' + wordData.id);
                 this.isPlayingWordNarration = false;
-                if (onComplete) onComplete();
-              };
-              meaningUtter.onerror = () => {
-                this.isPlayingWordNarration = false;
-                if (onComplete) onComplete();
-              };
+                if (onComplete && !isStale()) onComplete();
+              } else if (this.speechSynth) {
+                const meaningUtter = new SpeechSynthesisUtterance(wordData.meaning);
+                meaningUtter.lang = 'id-ID';
+                if (this.idVoice) meaningUtter.voice = this.idVoice;
+                meaningUtter.pitch = 1.15;
+                meaningUtter.rate = 1.0;
 
-              this.speechSynth.speak(meaningUtter);
+                meaningUtter.onend = () => {
+                  this.isPlayingWordNarration = false;
+                  if (onComplete && !isStale()) onComplete();
+                };
+                meaningUtter.onerror = () => {
+                  this.isPlayingWordNarration = false;
+                  if (onComplete && !isStale()) onComplete();
+                };
+
+                this.speechSynth.speak(meaningUtter);
+              } else {
+                this.isPlayingWordNarration = false;
+                if (onComplete && !isStale()) onComplete();
+              }
             }, 300);
           };
 
-          wordUtter.onerror = () => {
-            this.isPlayingWordNarration = false;
-            if (onComplete) onComplete();
-          };
+          if (hasCustomWord) {
+            await this.playCustomAudio('word_' + wordData.id);
+            if (!isStale()) proceedToMeaning();
+          } else if (this.speechSynth) {
+            const wordUtter = new SpeechSynthesisUtterance(wordData.soundWord || wordData.word);
+            wordUtter.lang = 'id-ID';
+            if (this.idVoice) wordUtter.voice = this.idVoice;
+            wordUtter.pitch = 1.3;
+            wordUtter.rate = 0.95;
 
-          this.speechSynth.speak(wordUtter);
+            wordUtter.onend = () => { if (!isStale()) proceedToMeaning(); };
+            wordUtter.onerror = () => { if (!isStale()) proceedToMeaning(); };
+
+            this.speechSynth.speak(wordUtter);
+          } else {
+            proceedToMeaning();
+          }
         }, 300);
       }
     };
@@ -449,8 +713,12 @@ class AudioEngine {
     speakNextLetter();
   }
 
-  speakText(text, pitch = 1.2, onEnd = null) {
-    if (this.isMuted || !this.speechSynth) {
+  async speakText(text, pitch = 1.2, onEnd = null) {
+    if (this.isMuted) {
+      if (onEnd) setTimeout(onEnd, 300);
+      return;
+    }
+    if (!this.speechSynth) {
       if (onEnd) setTimeout(onEnd, 500);
       return;
     }
